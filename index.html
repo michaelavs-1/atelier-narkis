@@ -4,39 +4,121 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>נרקיס · סידורי מהדורה · Atelier Narkis</title>
-  <meta name="description" content="סידור תפילה במהדורה מוגבלת. כרוך ביד, חתום ומוקדש ביד נרקיס." />
-  <meta property="og:title" content="Atelier Narkis · סידור פרדס" />
-  <meta property="og:description" content="סידור תפילה במהדורה מוגבלת של 360 עותקים. חתום ומוקדש ביד." />
+  <meta name="description" content="סידור תפילה במהדורה מוגבלת. כרוך ביד, חתום ומוקדש ביד נרקיס. A limited-edition siddur — hand-bound, signed and dedicated." />
+  <meta property="og:title" content="Atelier Narkis · סידור פרדס · Siddur Pardes" />
+  <meta property="og:description" content="סידור תפילה במהדורה מוגבלת של 360 עותקים. 360-copy limited edition. Signed by hand." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;500&family=Assistant:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;500&family=Assistant:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500&display=swap" />
   <link rel="stylesheet" href="styles.css" />
   <style>
-    /* single-page overrides */
+    /* single-page layout */
     html { scroll-behavior: smooth; }
     section[id] { scroll-margin-top: 88px; }
-    /* give each chapter hero a visible breathing divider */
     .chapter-divider {
       height: 1px;
       margin: 0 auto;
       max-width: 200px;
       background: linear-gradient(90deg, transparent, rgba(201,169,106,.45), transparent);
     }
+
+    /* ============ LANGUAGE TOGGLE ============ */
+    html[lang="he"] .t-en { display: none !important; }
+    html[lang="en"] .t-he { display: none !important; }
+    /* inline variants */
+    html[lang="he"] i.t-en, html[lang="he"] span.t-en, html[lang="he"] em.t-en, html[lang="he"] small.t-en { display: none !important; }
+    html[lang="en"] i.t-he, html[lang="en"] span.t-he, html[lang="en"] em.t-he, html[lang="en"] small.t-he { display: none !important; }
+
+    /* english mode tweaks: use Cormorant for display, Inter for body */
+    html[lang="en"] body {
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+    }
+    html[lang="en"] h1, html[lang="en"] h2, html[lang="en"] .hero h1, html[lang="en"] .siddur-hero h1, html[lang="en"] .story-hero h1 {
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-weight: 300;
+      letter-spacing: .01em;
+    }
+    html[lang="en"] .eyebrow, html[lang="en"] .eyebrow.solo {
+      font-family: "Inter", sans-serif;
+      letter-spacing: .28em;
+    }
+    html[lang="en"] .lede, html[lang="en"] p {
+      font-family: "Inter", sans-serif;
+    }
+    html[lang="en"] .btn, html[lang="en"] .btn-ghost {
+      font-family: "Inter", sans-serif;
+      letter-spacing: .14em;
+    }
+    html[lang="en"] h1 em, html[lang="en"] h2 em {
+      /* when in english, the "other-lang" em line is hebrew — keep Hebrew typography */
+      font-family: "Frank Ruhl Libre", serif;
+      font-style: normal;
+      direction: rtl;
+      unicode-bidi: isolate;
+    }
+    html[lang="he"] h1 em, html[lang="he"] h2 em {
+      direction: ltr;
+      unicode-bidi: isolate;
+    }
+
+    /* in english mode flip the hero-content alignment to the left side */
+    html[lang="en"] .hero-content,
+    html[lang="en"] .story-hero-content {
+      text-align: left;
+    }
+    html[lang="en"] .hero-content em,
+    html[lang="en"] .story-hero-content em {
+      display: block;
+      margin-top: 12px;
+    }
+
+    /* lang-switch link in topbar */
+    .lang-link {
+      font-family: "Inter", sans-serif !important;
+      font-size: 11px !important;
+      letter-spacing: .22em !important;
+      text-transform: uppercase;
+      opacity: .7;
+      transition: opacity .3s ease;
+      white-space: nowrap;
+    }
+    .lang-link:hover { opacity: 1; }
+    .lang-link::before { content: "◦ "; color: var(--gold, #c9a96a); opacity: .6; }
+
+    /* SVG book wordmark — Hebrew needs explicit RTL */
+    svg text.svg-he { direction: rtl; unicode-bidi: bidi-override; }
   </style>
 </head>
 <body>
   <header class="topbar">
-    <nav class="nav-main right" aria-label="ראשית">
-      <a href="#home" data-nav="home" class="active">הבית</a>
-      <a href="#siddur" data-nav="siddur">הסידור</a>
-      <a href="#story" data-nav="story">הסיפור</a>
+    <nav class="nav-main right" aria-label="main">
+      <a href="#home" data-nav="home" class="active">
+        <span class="t-he">הבית</span>
+        <span class="t-en">Home</span>
+      </a>
+      <a href="#siddur" data-nav="siddur">
+        <span class="t-he">הסידור</span>
+        <span class="t-en">The Siddur</span>
+      </a>
+      <a href="#story" data-nav="story">
+        <span class="t-he">הסיפור</span>
+        <span class="t-en">The Story</span>
+      </a>
     </nav>
     <div class="wordmark">
-      נ ר ק י ס
+      <span class="t-he">נ ר ק י ס</span>
+      <span class="t-en">N A R K I S</span>
       <small>Atelier · Est. MMXXVI</small>
     </div>
-    <nav class="nav-main left" aria-label="פעולות">
-      <a href="#reserve">לשריון עותק</a>
+    <nav class="nav-main left" aria-label="actions">
+      <a href="#" class="lang-link" data-lang-toggle>
+        <span class="t-he">English</span>
+        <span class="t-en">עברית</span>
+      </a>
+      <a href="#reserve">
+        <span class="t-he">לשריון עותק</span>
+        <span class="t-en">Reserve</span>
+      </a>
     </nav>
   </header>
 
@@ -47,17 +129,34 @@
     <div class="hero-bg" style="background-image: url('media/narkis-01-hero-color.jpg');"></div>
     <div class="hero-content">
       <span class="eyebrow reveal">Siddurei Mahadurah · Limited Edition</span>
-      <h1 class="reveal">
+
+      <h1 class="reveal t-he">
         תְּפִלָּה<br />
         בְּקוֹל שֶׁלְּךָ
         <em>a siddur in her voice</em>
       </h1>
-      <p class="lede reveal">
+      <h1 class="reveal t-en">
+        Prayer in<br />
+        her own voice
+        <em>תפילה בקול שלה</em>
+      </h1>
+
+      <p class="lede reveal t-he">
         סידור תפילה במהדורה מוגבלת ומוקדשת. כרוך יד, חתום, נושא את התפילות האהובות עליה — ואת שמך שלך.
       </p>
+      <p class="lede reveal t-en">
+        A dedicated, limited-edition siddur. Hand-bound and signed — it carries her chosen prayers, and your own name.
+      </p>
+
       <div class="hero-actions reveal">
-        <a class="btn" href="#siddur">גלי את הסידור</a>
-        <a class="btn-ghost" href="#story">הסיפור</a>
+        <a class="btn" href="#siddur">
+          <span class="t-he">גלי את הסידור</span>
+          <span class="t-en">Discover the siddur</span>
+        </a>
+        <a class="btn-ghost" href="#story">
+          <span class="t-he">הסיפור</span>
+          <span class="t-en">The story</span>
+        </a>
       </div>
     </div>
     <div class="hero-scroll" aria-hidden="true">Scroll</div>
@@ -67,24 +166,42 @@
     <div class="wrap">
       <div class="editorial-grid">
         <div class="editorial-text reveal">
-          <span class="eyebrow solo">הצהרה · Manifesto</span>
-          <h2>
+          <span class="eyebrow solo t-he">הצהרה · Manifesto</span>
+          <span class="eyebrow solo t-en">Manifesto</span>
+
+          <h2 class="t-he">
             יש תפילות <span class="gold">שגדלות איתך</span> —
             אנחנו כורכים להן בית.
           </h2>
-          <p>
+          <h2 class="t-en">
+            Some prayers <span class="gold">grow with you</span> —
+            we bind them a home.
+          </h2>
+
+          <p class="t-he">
             המהדורה הראשונה היא מחווה שקטה לשגרת הבוקר, לנשימה שמחכה לכוס הראשונה, לרגעים שבהם המילים מכירות אותנו יותר מאיתנו. נרקיס בחרה את נוסח התפילה, את הפרשנות, את הנייר ואת הצבע — כל עותק חתום ונושא את ההקדשה שלך.
           </p>
-          <p class="small">
+          <p class="t-en">
+            The first edition is a quiet tribute to the morning ritual — to the breath before the first cup, to the moments when the words know us better than we know ourselves. Narkis chose the rite, the commentary, the paper and the tone — each copy is signed and carries your dedication.
+          </p>
+
+          <p class="small t-he">
             כרוך ביד · נייר כותנה · רקמת חוטי זהב · 184 עמודים · מ־₪1,280
           </p>
+          <p class="small t-en">
+            Hand-bound · Cotton paper · Gold-thread embroidery · 184 pages · from ₪1,280
+          </p>
+
           <div>
-            <a class="btn-ghost" href="#siddur">כל הפרטים</a>
+            <a class="btn-ghost" href="#siddur">
+              <span class="t-he">כל הפרטים</span>
+              <span class="t-en">Full specifications</span>
+            </a>
           </div>
         </div>
         <div class="reveal">
           <figure class="photo-frame">
-            <img src="media/narkis-03-leather-bw.jpg" alt="נרקיס · פורטרט שחור לבן" loading="lazy" />
+            <img src="media/narkis-03-leather-bw.jpg" alt="Narkis portrait · black and white" loading="lazy" />
           </figure>
           <div class="photo-caption">
             <span class="num">№ 01</span>
@@ -96,8 +213,9 @@
   </section>
 
   <section class="portrait-strip reveal">
-    <img src="media/narkis-05-joy-color.jpg" alt="נרקיס בצחוק · קמפיין" loading="lazy" />
-    <div class="caption">״מִזְמוֹר לְתוֹדָה — הָרִיעוּ לַיְיָ כָּל הָאָרֶץ״</div>
+    <img src="media/narkis-05-joy-color.jpg" alt="Narkis laughing · campaign" loading="lazy" />
+    <div class="caption t-he">״מִזְמוֹר לְתוֹדָה — הָרִיעוּ לַיְיָ כָּל הָאָרֶץ״</div>
+    <div class="caption t-en">"A Psalm of Thanksgiving — Make a joyful noise unto the Lord, all ye lands."</div>
   </section>
 
   <div class="chapter-divider"></div>
@@ -109,17 +227,34 @@
     <div class="wrap">
       <div class="siddur-hero-grid">
         <div class="siddur-hero-text reveal">
-          <span class="eyebrow solo">המהדורה הראשונה · First Edition</span>
-          <h1>
+          <span class="eyebrow solo t-he">המהדורה הראשונה · First Edition</span>
+          <span class="eyebrow solo t-en">First Edition</span>
+
+          <h1 class="t-he">
             סידור פַּרְדֵּס
             <em>siddur pardes · signed</em>
           </h1>
-          <p class="lede">
+          <h1 class="t-en">
+            Siddur Pardes
+            <em>סידור פרדס · חתום</em>
+          </h1>
+
+          <p class="lede t-he">
             סידור תפילה במהדורה מוגבלת של 360 עותקים. כל עותק ממוספר, חתום ביד, ונושא הקדשה אישית. נייר כותנה באפור־אפר, כריכת עור חלק בשחור עמוק, רקמת זהב 22 קראט בשדרה.
           </p>
+          <p class="lede t-en">
+            A siddur in a limited edition of 360 copies. Each is numbered, signed by hand, and carries a personal dedication. Cotton paper in ash grey, smooth black leather binding, 22-carat gold embroidery along the spine.
+          </p>
+
           <div class="hero-actions">
-            <a class="btn" href="#hakdasha">עיצוב ההקדשה</a>
-            <a class="btn-ghost" href="#specs">מפרט</a>
+            <a class="btn" href="#hakdasha">
+              <span class="t-he">עיצוב ההקדשה</span>
+              <span class="t-en">Design your dedication</span>
+            </a>
+            <a class="btn-ghost" href="#specs">
+              <span class="t-he">מפרט</span>
+              <span class="t-en">Specifications</span>
+            </a>
           </div>
         </div>
 
@@ -177,7 +312,12 @@
                 <circle r="48" fill="none" stroke="url(#gold-ink)" stroke-width=".4" opacity=".45" />
                 <text x="0" y="22" text-anchor="middle" font-family="Frank Ruhl Libre, serif" font-weight="400" font-size="74" fill="url(#gold-ink)">נ</text>
               </g>
-              <text x="219" y="340" text-anchor="middle" font-family="Frank Ruhl Libre, serif" font-weight="300" font-size="22" letter-spacing="14" fill="url(#gold-ink)">נרקיס</text>
+
+              <!-- HEBREW WORDMARK — reversed in source because SVG letter-spacing ignores bidi -->
+              <text class="t-he svg-he" x="219" y="340" text-anchor="middle" font-family="Frank Ruhl Libre, serif" font-weight="300" font-size="22" letter-spacing="14" fill="url(#gold-ink)" direction="rtl" unicode-bidi="bidi-override">נרקיס</text>
+              <!-- ENGLISH WORDMARK -->
+              <text class="t-en" x="219" y="340" text-anchor="middle" font-family="Cormorant Garamond, serif" font-weight="300" font-size="20" letter-spacing="11" fill="url(#gold-ink)">NARKIS</text>
+
               <line x1="158" y1="358" x2="280" y2="358" stroke="url(#gold-ink)" stroke-width=".8" opacity=".65" />
               <text x="219" y="380" text-anchor="middle" font-family="Cormorant Garamond, serif" font-style="italic" font-size="13" letter-spacing="6" fill="#c9a96a" opacity=".75">PARDES · MMXXVI</text>
               <text x="219" y="460" text-anchor="middle" font-family="Frank Ruhl Libre, serif" font-size="14" letter-spacing="10" fill="url(#gold-ink)" opacity=".6">· ✦ ·</text>
@@ -195,24 +335,36 @@
     <div class="wrap">
       <div class="specs-grid">
         <div class="spec reveal">
-          <span class="label">כריכה · Binding</span>
-          <span class="value">עור חלק שחור</span>
-          <span class="hint">מעובד ביד אצל האטליה של דוד כתר בירושלים</span>
+          <span class="label t-he">כריכה · Binding</span>
+          <span class="label t-en">Binding</span>
+          <span class="value t-he">עור חלק שחור</span>
+          <span class="value t-en">Smooth black leather</span>
+          <span class="hint t-he">מעובד ביד אצל האטליה של דוד כתר בירושלים</span>
+          <span class="hint t-en">Hand-crafted at the David Keter atelier in Jerusalem</span>
         </div>
         <div class="spec reveal">
-          <span class="label">נייר · Paper</span>
-          <span class="value">כותנה אפור־אפר</span>
-          <span class="hint">נייר כותנה איטלקי 120 גרם · עמיד ל־200 שנה</span>
+          <span class="label t-he">נייר · Paper</span>
+          <span class="label t-en">Paper</span>
+          <span class="value t-he">כותנה אפור־אפר</span>
+          <span class="value t-en">Ash-grey cotton</span>
+          <span class="hint t-he">נייר כותנה איטלקי 120 גרם · עמיד ל־200 שנה</span>
+          <span class="hint t-en">120 gsm Italian cotton paper · archival for 200 years</span>
         </div>
         <div class="spec reveal">
-          <span class="label">פרטי זהב · Gilding</span>
-          <span class="value">רקמת זהב 22 קראט</span>
-          <span class="hint">רקומה בחוט זהב אמיתי בשדרה ובמונוגרם</span>
+          <span class="label t-he">פרטי זהב · Gilding</span>
+          <span class="label t-en">Gilding</span>
+          <span class="value t-he">רקמת זהב 22 קראט</span>
+          <span class="value t-en">22-carat gold embroidery</span>
+          <span class="hint t-he">רקומה בחוט זהב אמיתי בשדרה ובמונוגרם</span>
+          <span class="hint t-en">Sewn in real gold thread on spine and monogram</span>
         </div>
         <div class="spec reveal">
-          <span class="label">מהדורה · Edition</span>
-          <span class="value">360 עותקים ממוספרים</span>
-          <span class="hint">כל עותק חתום ומספר בכתב יד · מחיר מ־₪1,280</span>
+          <span class="label t-he">מהדורה · Edition</span>
+          <span class="label t-en">Edition</span>
+          <span class="value t-he">360 עותקים ממוספרים</span>
+          <span class="value t-en">360 numbered copies</span>
+          <span class="hint t-he">כל עותק חתום ומספר בכתב יד · מחיר מ־₪1,280</span>
+          <span class="hint t-en">Each copy hand-signed and numbered · from ₪1,280</span>
         </div>
       </div>
     </div>
@@ -229,31 +381,52 @@
               <div class="ornament">· ✦ ·</div>
               <div class="owner placeholder" id="ownerOut">שמך כאן</div>
             </div>
-            <div class="foot">עותק מס' 001 / 360 · חתום ביד נרקיס</div>
+            <div class="foot">
+              <span class="t-he">עותק מס' 001 / 360 · חתום ביד נרקיס</span>
+              <span class="t-en">No. 001 / 360 · Signed by Narkis</span>
+            </div>
           </div>
         </div>
 
         <div class="hakdasha-form reveal">
-          <span class="eyebrow solo">עיצוב ההקדשה · Personalise</span>
-          <h2 class="display-he" style="font-size: clamp(36px,4.6vw,64px); margin: 0;">
-            כל עותק <span class="display-lt">נושא את שמך</span>
+          <span class="eyebrow solo t-he">עיצוב ההקדשה · Personalise</span>
+          <span class="eyebrow solo t-en">Personalise</span>
+
+          <h2 class="t-he" style="font-size: clamp(36px,4.6vw,64px); margin: 0;">
+            כל עותק <span class="gold">נושא את שמך</span>
           </h2>
-          <p style="color: var(--paper); font-size: 16px; line-height: 1.8; margin: 0;">
+          <h2 class="t-en" style="font-size: clamp(36px,4.6vw,64px); margin: 0;">
+            Every copy <span class="gold">carries your name</span>
+          </h2>
+
+          <p class="t-he" style="color: var(--paper); font-size: 16px; line-height: 1.8; margin: 0;">
             ההקדשה מודפסת באות מיוחדת בעמוד ההקדשה של הסידור. הזינו את הפרטים — ההקדשה משתקפת מייד בהדמיה לצדכם.
+          </p>
+          <p class="t-en" style="color: var(--paper); font-size: 16px; line-height: 1.8; margin: 0;">
+            Your dedication is printed in a custom cut on the siddur's dedication page. Type in below — the preview updates live beside you.
           </p>
 
           <div class="field">
-            <label for="ownerInput">לכבוד · Dedicated To</label>
-            <input id="ownerInput" type="text" placeholder="שם מקבל הסידור" autocomplete="off" />
+            <label for="ownerInput">
+              <span class="t-he">לכבוד · Dedicated To</span>
+              <span class="t-en">Dedicated To</span>
+            </label>
+            <input id="ownerInput" type="text" data-ph-he="שם מקבל הסידור" data-ph-en="Recipient's name" autocomplete="off" />
           </div>
 
           <div class="field">
-            <label for="dedInput">ההקדשה · Inscription</label>
-            <textarea id="dedInput" placeholder="פסוק, שורה משיר, איחול אישי — עד 120 תווים" maxlength="140"></textarea>
+            <label for="dedInput">
+              <span class="t-he">ההקדשה · Inscription</span>
+              <span class="t-en">Inscription</span>
+            </label>
+            <textarea id="dedInput" data-ph-he="פסוק, שורה משיר, איחול אישי — עד 120 תווים" data-ph-en="A verse, a line from a song, a personal blessing — up to 120 characters" maxlength="140"></textarea>
           </div>
 
           <div>
-            <a class="btn" href="#reserve">המשיכי לשריון</a>
+            <a class="btn" href="#reserve">
+              <span class="t-he">המשיכי לשריון</span>
+              <span class="t-en">Continue to reserve</span>
+            </a>
           </div>
         </div>
       </div>
@@ -268,13 +441,23 @@
   <section class="story-hero" id="story">
     <div class="story-hero-bg" style="background-image: url('media/narkis-04-trench-portrait.jpg');"></div>
     <div class="story-hero-content reveal">
-      <span class="eyebrow solo">הסיפור · The Story</span>
-      <h1>
+      <span class="eyebrow solo t-he">הסיפור · The Story</span>
+      <span class="eyebrow solo t-en">The Story</span>
+
+      <h1 class="t-he">
         לֹא פַּעֲמוֹן —<br />שַׁעַר.
         <em>not a bell — a gate</em>
       </h1>
-      <p style="color: var(--paper); font-size: 18px; line-height: 1.7; margin: 0; max-width: 520px;">
+      <h1 class="t-en">
+        Not a bell —<br />a gate.
+        <em>לא פעמון — שער</em>
+      </h1>
+
+      <p class="t-he" style="color: var(--paper); font-size: 18px; line-height: 1.7; margin: 0; max-width: 520px;">
         שיחה קצרה על הסידור, על הנוסח שבחרה, ועל הרגעים שבהם מילה של תפילה מצילה יום.
+      </p>
+      <p class="t-en" style="color: var(--paper); font-size: 18px; line-height: 1.7; margin: 0; max-width: 520px;">
+        A short conversation about the siddur, the rite she chose, and the moments when a single word of prayer saves a day.
       </p>
     </div>
   </section>
@@ -283,20 +466,31 @@
     <div class="wrap">
       <div class="story-body-grid">
         <div class="story-text reveal">
-          <p class="first-letter">
+          <p class="first-letter t-he">
             סידור הוא ספר שמלווה אדם כמו שעון — מתחיל איתו את היום וחותם אותו בלילה. רציתי סידור אחד שירגיש כמו שמלה חגיגית שאת לובשת גם בבוקר של יום חמישי סתם. לא דתי־יותר־מדי, לא מעוצב־יותר־מדי. פשוט שלי. פשוט שלך.
           </p>
-          <blockquote>
+          <p class="first-letter t-en">
+            A siddur is a book that walks with you like a watch — you begin the day with it and close the day with it. I wanted one siddur that feels like a festive dress you could also wear on a plain Thursday morning. Not too-religious, not too-designed. Simply mine. Simply yours.
+          </p>
+
+          <blockquote class="t-he">
             התפילה הכי חזקה היא לא זו שאני זוכרת בעל פה — אלא זו שפותחת את הספר בשבילי, בבוקר שבו שכחתי את המילים.
           </blockquote>
-          <p>
+          <blockquote class="t-en">
+            The strongest prayer isn't the one I know by heart — it's the one that opens the book for me, on the morning I've forgotten the words.
+          </blockquote>
+
+          <p class="t-he">
             בחרתי נוסח עדות המזרח שאני גדלתי עליו, הוספתי פרשנות קצרה לצד הדף, וביקשתי להשאיר מקום למי שיקבל את הסידור — שם בעמוד השער, הקדשה אישית, ופסוק שבחרת. הסידור הזה לא נועד למדף. הוא נועד לשולחן המיטה, לתיק, ליד.
+          </p>
+          <p class="t-en">
+            I chose the Eastern rite I grew up on, added a short commentary beside the page, and asked to leave room for whoever receives this siddur — a name on the title page, a personal dedication, a verse that you chose. This siddur wasn't made for the shelf. It was made for the bedside table, the bag, the hand.
           </p>
         </div>
 
         <div class="reveal">
           <figure class="photo-frame wide">
-            <img src="media/narkis-02-pensive-bw.jpg" alt="נרקיס בפורטרט שחור לבן" loading="lazy" />
+            <img src="media/narkis-02-pensive-bw.jpg" alt="Narkis · pensive portrait in black and white" loading="lazy" />
           </figure>
           <div class="photo-caption">
             <span class="num">№ 02</span>
@@ -305,7 +499,7 @@
 
           <div style="margin-top: 28px;" class="signature">
             Narkis
-            <small>Founder & Voice</small>
+            <small>Founder &amp; Voice</small>
           </div>
         </div>
       </div>
@@ -316,44 +510,73 @@
     <div class="wrap">
       <div class="reserve-inner">
         <div class="reveal">
-          <span class="eyebrow solo">שריון עותק · Reserve</span>
-          <h2 style="margin-top: 22px;">
+          <span class="eyebrow solo t-he">שריון עותק · Reserve</span>
+          <span class="eyebrow solo t-en">Reserve a copy</span>
+
+          <h2 class="t-he" style="margin-top: 22px;">
             שריון עותק<br />
             <em>from a quiet list of 360</em>
           </h2>
-          <p style="margin-top: 20px;">
+          <h2 class="t-en" style="margin-top: 22px;">
+            Reserve a copy<br />
+            <em>מתוך רשימה שקטה של 360</em>
+          </h2>
+
+          <p class="t-he" style="margin-top: 20px;">
             המהדורה הראשונה נשלחת באוקטובר. השריון נסגר בתשלום סמלי של ₪180, שמזוכה מהמחיר הסופי. נחזור אליך באופן אישי בטלפון לתאם את ההקדשה.
+          </p>
+          <p class="t-en" style="margin-top: 20px;">
+            The first edition ships in October. A reservation is held with a symbolic ₪180 deposit, credited against the final price. We'll call you personally to arrange the dedication.
           </p>
         </div>
 
         <form id="reserveForm" class="reserve-form reveal" autocomplete="on">
           <div class="field-row">
             <div class="field">
-              <label for="rName">השם המלא</label>
+              <label for="rName">
+                <span class="t-he">השם המלא</span>
+                <span class="t-en">Full name</span>
+              </label>
               <input id="rName" type="text" required autocomplete="name" />
             </div>
             <div class="field">
-              <label for="rPhone">טלפון</label>
+              <label for="rPhone">
+                <span class="t-he">טלפון</span>
+                <span class="t-en">Phone</span>
+              </label>
               <input id="rPhone" type="tel" inputmode="tel" required autocomplete="tel" />
             </div>
           </div>
           <div class="field">
-            <label for="rEmail">דואר אלקטרוני</label>
+            <label for="rEmail">
+              <span class="t-he">דואר אלקטרוני</span>
+              <span class="t-en">Email</span>
+            </label>
             <input id="rEmail" type="email" required autocomplete="email" />
           </div>
           <div class="field">
-            <label for="rDed">הקדשה · למי הסידור</label>
-            <input id="rDed" type="text" placeholder="לכבוד · ... (אפשר גם בהמשך)" />
+            <label for="rDed">
+              <span class="t-he">הקדשה · למי הסידור</span>
+              <span class="t-en">Dedication · recipient</span>
+            </label>
+            <input id="rDed" type="text" data-ph-he="לכבוד · ... (אפשר גם בהמשך)" data-ph-en="To: ... (can be added later)" />
           </div>
           <div class="field">
-            <label for="rNote">הערה אישית</label>
-            <textarea id="rNote" placeholder="משהו שחשוב לך שאדע · אפשרי ריק"></textarea>
+            <label for="rNote">
+              <span class="t-he">הערה אישית</span>
+              <span class="t-en">Personal note</span>
+            </label>
+            <textarea id="rNote" data-ph-he="משהו שחשוב לך שאדע · אפשרי ריק" data-ph-en="Anything you'd like me to know · may be left blank"></textarea>
           </div>
           <div class="reserve-submit">
-            <button type="submit" class="btn">שריון עותק · ₪180</button>
+            <button type="submit" class="btn">
+              <span class="t-he">שריון עותק · ₪180</span>
+              <span class="t-en">Reserve · ₪180</span>
+            </button>
           </div>
           <p id="reserveConfirm" hidden style="color: var(--gold-bright); font-family: var(--font-he-display); font-size: 22px; text-align: center; margin-top: 16px;">
-            השריון נקלט. נתקשר אליך בתוך 48 שעות.
+            <span class="t-he">השריון נקלט. נתקשר אליך בתוך 48 שעות.</span>
+            <span class="t-en">Reservation received. We'll call you within 48 hours.</span>
           </p>
         </form>
       </div>
@@ -363,18 +586,36 @@
   <footer class="foot">
     <div class="foot-inner">
       <div class="foot-links start">
-        <a href="#home">הבית</a>
-        <a href="#siddur">הסידור</a>
-        <a href="#story">הסיפור</a>
+        <a href="#home">
+          <span class="t-he">הבית</span>
+          <span class="t-en">Home</span>
+        </a>
+        <a href="#siddur">
+          <span class="t-he">הסידור</span>
+          <span class="t-en">The Siddur</span>
+        </a>
+        <a href="#story">
+          <span class="t-he">הסיפור</span>
+          <span class="t-en">The Story</span>
+        </a>
       </div>
-      <div class="mark">נרקיס · Atelier</div>
+      <div class="mark">
+        <span class="t-he">נרקיס · Atelier</span>
+        <span class="t-en">Narkis · Atelier</span>
+      </div>
       <div class="foot-links">
         <a href="mailto:atelier@narkis.co.il">atelier@narkis.co.il</a>
-        <a href="#reserve">שריון עותק</a>
+        <a href="#reserve">
+          <span class="t-he">שריון עותק</span>
+          <span class="t-en">Reserve</span>
+        </a>
       </div>
     </div>
-    <div class="credits">
+    <div class="credits t-he">
       © MMXXVI Atelier Narkis · כל הזכויות שמורות · אתר הדגמה — המוצר אינו זמין למכירה בפועל · צילום: עידן מירב, באדיבות האמנית
+    </div>
+    <div class="credits t-en">
+      © MMXXVI Atelier Narkis · All rights reserved · Concept site — product not available for actual sale · Photography: Idan Meirav, courtesy of the artist
     </div>
   </footer>
 

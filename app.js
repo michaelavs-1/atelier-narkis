@@ -1,10 +1,84 @@
-/* ATELIER NARKIS — single-page luxury siddur site
-   topbar scroll state, reveal-on-scroll, live hakdasha, active section nav, reserve form */
+/* ATELIER NARKIS — bilingual single-page site
+   language toggle, topbar scroll state, reveal-on-scroll, active section nav, live hakdasha, reserve form */
 
 (function () {
   "use strict";
 
-  // topbar scrolled state
+  const LANG_KEY = "atelier_narkis_lang";
+  const DEFAULT_LANG = "he";
+  const SUPPORTED = ["he", "en"];
+
+  const copy = {
+    he: {
+      title: "נרקיס · סידורי מהדורה · Atelier Narkis",
+      defaultOwner: "שמך כאן",
+      defaultDed: "לַיְלָה וּבֹקֶר וְצָהֳרַיִם / אָשִׂיחָה וְאֶהֱמֶה וְיִשְׁמַע קוֹלִי",
+      btnSubmitted: "תודה — נחזור אליך"
+    },
+    en: {
+      title: "Atelier Narkis · Limited Edition Siddur",
+      defaultOwner: "Your name here",
+      defaultDed: "Evening, morning and noon — I pray, I cry out, and He hears my voice.",
+      btnSubmitted: "Thank you — we'll call"
+    }
+  };
+
+  // ---------- Language toggle ----------
+  function currentLang() {
+    return document.documentElement.getAttribute("lang") || DEFAULT_LANG;
+  }
+
+  function setLang(lang) {
+    if (!SUPPORTED.includes(lang)) lang = DEFAULT_LANG;
+    const html = document.documentElement;
+    html.setAttribute("lang", lang);
+    html.setAttribute("dir", lang === "he" ? "rtl" : "ltr");
+
+    // update <title>
+    if (copy[lang] && copy[lang].title) document.title = copy[lang].title;
+
+    // update placeholders
+    document.querySelectorAll("[data-ph-" + lang + "]").forEach((el) => {
+      const val = el.getAttribute("data-ph-" + lang);
+      if (val != null) el.setAttribute("placeholder", val);
+    });
+
+    // re-run live hakdasha sync (defaults change)
+    sync();
+
+    // ensure any already-observed reveals stay visible across toggles
+    document.querySelectorAll(".reveal.visible").forEach((el) => el.classList.add("visible"));
+
+    // trigger reveals for any newly-visible content currently in viewport
+    setTimeout(() => {
+      document.querySelectorAll(".reveal:not(.visible)").forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+          el.classList.add("visible");
+        }
+      });
+    }, 50);
+
+    try { localStorage.setItem(LANG_KEY, lang); } catch (e) { /* ignore */ }
+  }
+
+  function initLang() {
+    const urlLang = new URLSearchParams(location.search).get("lang");
+    let saved = null;
+    try { saved = localStorage.getItem(LANG_KEY); } catch (e) { /* ignore */ }
+    const initial = SUPPORTED.includes(urlLang) ? urlLang : (SUPPORTED.includes(saved) ? saved : DEFAULT_LANG);
+    setLang(initial);
+  }
+
+  // wire up lang toggle link
+  document.addEventListener("click", (e) => {
+    const t = e.target.closest("[data-lang-toggle]");
+    if (!t) return;
+    e.preventDefault();
+    setLang(currentLang() === "he" ? "en" : "he");
+  });
+
+  // ---------- Topbar scrolled state ----------
   const topbar = document.querySelector(".topbar");
   if (topbar) {
     const onScroll = () => topbar.classList.toggle("scrolled", window.scrollY > 24);
@@ -12,7 +86,7 @@
     window.addEventListener("scroll", onScroll, { passive: true });
   }
 
-  // reveal-on-scroll
+  // ---------- Reveal-on-scroll ----------
   const reveals = document.querySelectorAll(".reveal");
   if (reveals.length) {
     const revealObs = new IntersectionObserver(
@@ -29,7 +103,7 @@
     reveals.forEach((el) => revealObs.observe(el));
   }
 
-  // active section in top nav
+  // ---------- Active section in top nav ----------
   const navLinks = document.querySelectorAll(".nav-main.right a[data-nav]");
   const sectionMap = {};
   navLinks.forEach((a) => {
@@ -53,39 +127,39 @@
     keys.forEach((k) => navObs.observe(sectionMap[k].el));
   }
 
-  // live hakdasha preview
-  const owner = document.getElementById("ownerInput");
-  const ded = document.getElementById("dedInput");
+  // ---------- Live hakdasha preview ----------
+  const ownerIn = document.getElementById("ownerInput");
+  const dedIn = document.getElementById("dedInput");
   const ownerOut = document.getElementById("ownerOut");
   const dedOut = document.getElementById("dedOut");
 
-  const defaultOwner = "שמך כאן";
-  const defaultDed = "לַיְלָה וּבֹקֶר וְצָהֳרַיִם / אָשִׂיחָה וְאֶהֱמֶה וְיִשְׁמַע קוֹלִי";
-
   function sync() {
+    const lang = currentLang();
+    const c = copy[lang] || copy.he;
     if (ownerOut) {
-      const v = (owner && owner.value.trim()) || "";
-      ownerOut.textContent = v || defaultOwner;
+      const v = (ownerIn && ownerIn.value.trim()) || "";
+      ownerOut.textContent = v || c.defaultOwner;
       ownerOut.classList.toggle("placeholder", !v);
     }
     if (dedOut) {
-      const v = (ded && ded.value.trim()) || "";
-      dedOut.textContent = v || defaultDed;
+      const v = (dedIn && dedIn.value.trim()) || "";
+      dedOut.textContent = v || c.defaultDed;
     }
   }
-  if (owner) owner.addEventListener("input", sync);
-  if (ded) ded.addEventListener("input", sync);
-  sync();
+  if (ownerIn) ownerIn.addEventListener("input", sync);
+  if (dedIn) dedIn.addEventListener("input", sync);
 
-  // reservation form — fake submit
+  // ---------- Reservation form ----------
   const resForm = document.getElementById("reserveForm");
   if (resForm) {
     resForm.addEventListener("submit", (e) => {
       e.preventDefault();
+      const lang = currentLang();
+      const c = copy[lang] || copy.he;
       const btn = resForm.querySelector("button[type=submit]");
       if (btn) {
         btn.style.pointerEvents = "none";
-        btn.textContent = "תודה — נחזור אליך";
+        btn.textContent = c.btnSubmitted;
       }
       const confirm = document.getElementById("reserveConfirm");
       if (confirm) {
@@ -95,4 +169,7 @@
       resForm.reset();
     });
   }
+
+  // ---------- Boot ----------
+  initLang();
 })();
