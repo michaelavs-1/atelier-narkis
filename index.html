@@ -789,10 +789,24 @@
     .hero-bg {
       background-size: 115% !important;
       background-position: 50% 20% !important;
+      background-repeat: no-repeat !important;   /* prevent mobile 3× tiling */
       animation: kenburns 42s ease-in-out infinite;
       transform: translate3d(0, var(--hero-py, 0px), 0);
       transition: transform .18s linear;
       will-change: transform, background-position;
+    }
+    /* On mobile the container is very tall; cover instead of 115% so the
+       image fills the full hero without tiling. */
+    @media (max-width: 768px), (pointer: coarse) {
+      .hero-bg {
+        background-size: cover !important;
+        background-position: center 18% !important;
+      }
+      @keyframes kenburns {
+        0%   { background-size: cover;      background-position: 50% 18%; }
+        50%  { background-size: 115% auto;  background-position: 48% 28%; }
+        100% { background-size: cover;      background-position: 50% 18%; }
+      }
     }
 
     /* Hero title: staggered per line */
