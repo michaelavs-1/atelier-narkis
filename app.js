@@ -440,30 +440,38 @@
       const start = Math.max(0, tailDist);
       const end = Math.min(s.totalLen, headDist);
       if (end - start < 1) return;
-      const iStart = findIndex(s.lens, start);
-      const iEnd = findIndex(s.lens, end);
+      const iStart = Math.max(0, Math.min(s.pts.length - 1, findIndex(s.lens, start)));
+      const iEnd   = Math.max(0, Math.min(s.pts.length - 1, findIndex(s.lens, end)));
       if (iEnd <= iStart) return;
 
-      // Split visible span into 3 sub-strokes for a head→tail taper
       const total = iEnd - iStart;
-      const seg = Math.max(2, Math.floor(total / 3));
-      const mid1 = iStart + seg, mid2 = iStart + seg * 2;
-
-      // Tail third — faintest
-      strokeSegment(s, iStart, mid1, 0.3);
-      // Middle third
-      strokeSegment(s, mid1, mid2, 0.75);
-      // Head third — brightest
-      strokeSegment(s, mid2, iEnd, 1.0);
+      if (total < 4) {
+        strokeSegment(s, iStart, iEnd, 1.0);
+      } else {
+        // Three-way taper: tail third faint, middle, head third brightest
+        const seg = Math.floor(total / 3);
+        const mid1 = iStart + seg;
+        const mid2 = iStart + seg * 2;
+        strokeSegment(s, iStart, mid1, 0.3);
+        strokeSegment(s, mid1,   mid2, 0.75);
+        strokeSegment(s, mid2,   iEnd, 1.0);
+      }
     }
 
     function strokeSegment(s, i0, i1, alphaMul) {
+      const lastIdx = s.pts.length - 1;
+      i0 = Math.max(0, Math.min(lastIdx, i0));
+      i1 = Math.max(0, Math.min(lastIdx, i1));
       if (i1 <= i0) return;
       const a = (s.alpha * alphaMul).toFixed(3);
+      const p0 = s.pts[i0];
+      if (!p0) return;
       ctx.beginPath();
-      ctx.moveTo(s.pts[i0].x, s.pts[i0].y);
+      ctx.moveTo(p0.x, p0.y);
       for (let i = i0 + 1; i <= i1; i++) {
-        ctx.lineTo(s.pts[i].x, s.pts[i].y);
+        const p = s.pts[i];
+        if (!p) break;
+        ctx.lineTo(p.x, p.y);
       }
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
