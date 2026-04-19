@@ -1021,6 +1021,15 @@
       opacity: .85;
       display: block;
       mix-blend-mode: screen;
+      /* Promote canvas to its own GPU layer so iOS Safari doesn't
+         downsample the fixed ambient layer's cache during long-page
+         scrolling (that is the "pixelated" look). Keeps the canvas
+         crisp at any scroll offset. */
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+      will-change: transform;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
     }
     /* Desktop: ambient on top, content z=1 */
     body > *:not(#ambient-bg) { position: relative; z-index: 1; }

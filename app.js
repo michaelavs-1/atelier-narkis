@@ -488,7 +488,7 @@
 
     // Live snake pool
     const snakes = [];
-    const MAX_SNAKES = reduced ? 3 : (isMobile ? 5 : 8);
+    const MAX_SNAKES = reduced ? 3 : (isMobile ? 7 : 8);
 
     // (Verses feature was removed — only ambient snake threads remain.)
 
@@ -499,11 +499,24 @@
     const TARGET_FPS = reduced ? 20 : (isMobile ? 30 : 40);
     const FRAME_MS = 1000 / TARGET_FPS;
     let lastSnakeSpawn = 0;
-    const SNAKE_SPAWN_INTERVAL = reduced ? 3000 : (isMobile ? 1000 : 700);
+    // Spawn faster on mobile so the canvas never feels empty after iOS
+    // throttles RAF during a scroll burst.
+    const SNAKE_SPAWN_INTERVAL = reduced ? 3000 : (isMobile ? 600 : 700);
 
     function frame(now) {
       if (now - lastFrame >= FRAME_MS) {
-        const dt = Math.min(0.1, (now - lastTick) / 1000);
+        // dt normally ~FRAME_MS/1000. When the browser throttles RAF
+        // (iOS Safari during scroll, tab minimized, etc.) the next
+        // "now" can jump by hundreds of ms. A big dt makes snakes
+        // leap across the screen and immediately fall off the end,
+        // leaving the canvas empty — and causes visible "pixel" jitter.
+        // Clamp aggressively and, on a spike, just advance by one frame.
+        let dt = (now - lastTick) / 1000;
+        if (dt > 0.15) {
+          dt = FRAME_MS / 1000; // resume at steady pace, no leap
+        } else if (dt > 0.1) {
+          dt = 0.1;
+        }
         lastTick = now;
         lastFrame = now;
 
