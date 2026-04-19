@@ -78,13 +78,26 @@
     setLang(currentLang() === "he" ? "en" : "he");
   });
 
-  // ---------- Topbar scrolled state ----------
+  // ---------- Topbar scrolled state + hero parallax ----------
   const topbar = document.querySelector(".topbar");
-  if (topbar) {
-    const onScroll = () => topbar.classList.toggle("scrolled", window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
+  const heroBg = document.querySelector(".hero-bg");
+  let lastY = -1;
+  let ticking = false;
+  function onScrollRaf() {
+    if (topbar) topbar.classList.toggle("scrolled", window.scrollY > 24);
+    if (heroBg) {
+      const y = Math.min(window.scrollY * 0.22, 140);
+      heroBg.style.setProperty("--hero-py", y + "px");
+    }
+    ticking = false;
   }
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(onScrollRaf);
+  }
+  onScrollRaf();
+  window.addEventListener("scroll", onScroll, { passive: true });
 
   // ---------- Reveal-on-scroll ----------
   const reveals = document.querySelectorAll(".reveal");
@@ -156,7 +169,16 @@
     });
 
     const total = base + addonSum;
-    if (totalOut) totalOut.textContent = formatPrice(total);
+    if (totalOut) {
+      totalOut.textContent = formatPrice(total);
+      const bar = document.querySelector(".config-total");
+      if (bar) {
+        bar.classList.remove("pulse");
+        // force reflow to restart animation
+        void bar.offsetWidth;
+        bar.classList.add("pulse");
+      }
+    }
 
     const n = addons.length;
     if (tierMetaHe) {
