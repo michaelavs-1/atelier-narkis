@@ -127,27 +127,53 @@
     keys.forEach((k) => navObs.observe(sectionMap[k].el));
   }
 
-  // ---------- Live hakdasha preview ----------
-  const ownerIn = document.getElementById("ownerInput");
-  const dedIn = document.getElementById("dedInput");
-  const ownerOut = document.getElementById("ownerOut");
-  const dedOut = document.getElementById("dedOut");
+  // ---------- Modular configurator: tier + add-ons total ----------
+  const tierNames = {
+    basic: { he: "בסיסי", en: "Basic" },
+    premium: { he: "פרימיום", en: "Premium" },
+    atelier: { he: "אַטלייה", en: "Atelier" }
+  };
+  const totalOut = document.getElementById("totalOut");
+  const tierMetaHe = document.getElementById("tierMetaHe");
+  const tierMetaEn = document.getElementById("tierMetaEn");
 
-  function sync() {
-    const lang = currentLang();
-    const c = copy[lang] || copy.he;
-    if (ownerOut) {
-      const v = (ownerIn && ownerIn.value.trim()) || "";
-      ownerOut.textContent = v || c.defaultOwner;
-      ownerOut.classList.toggle("placeholder", !v);
+  function formatPrice(n) {
+    return n.toLocaleString("en-US");
+  }
+
+  function recalcConfig() {
+    const tierInput = document.querySelector('input[name="tier"]:checked');
+    if (!tierInput) return;
+    const tierLabel = tierInput.closest(".tier");
+    const base = parseInt(tierLabel.getAttribute("data-price"), 10) || 0;
+    const tier = tierInput.value;
+
+    const addons = document.querySelectorAll('.addon input[type="checkbox"]:checked');
+    let addonSum = 0;
+    addons.forEach((cb) => {
+      const p = parseInt(cb.closest(".addon").getAttribute("data-price"), 10) || 0;
+      addonSum += p;
+    });
+
+    const total = base + addonSum;
+    if (totalOut) totalOut.textContent = formatPrice(total);
+
+    const n = addons.length;
+    if (tierMetaHe) {
+      const name = (tierNames[tier] && tierNames[tier].he) || "";
+      tierMetaHe.textContent = n === 0 ? (name + " · ללא תוספות") : (name + " · " + n + " תוספות (+₪" + formatPrice(addonSum) + ")");
     }
-    if (dedOut) {
-      const v = (dedIn && dedIn.value.trim()) || "";
-      dedOut.textContent = v || c.defaultDed;
+    if (tierMetaEn) {
+      const name = (tierNames[tier] && tierNames[tier].en) || "";
+      tierMetaEn.textContent = n === 0 ? (name + " · no add-ons") : (name + " · " + n + " add-on" + (n > 1 ? "s" : "") + " (+₪" + formatPrice(addonSum) + ")");
     }
   }
-  if (ownerIn) ownerIn.addEventListener("input", sync);
-  if (dedIn) dedIn.addEventListener("input", sync);
+
+  document.querySelectorAll('input[name="tier"]').forEach((el) => el.addEventListener("change", recalcConfig));
+  document.querySelectorAll('.addon input[type="checkbox"]').forEach((el) => el.addEventListener("change", recalcConfig));
+
+  // Keep sync() as no-op for backward compat from initLang path
+  function sync() { /* configurator has no live-text preview; placeholders already handled */ }
 
   // ---------- Reservation form ----------
   const resForm = document.getElementById("reserveForm");
@@ -172,4 +198,5 @@
 
   // ---------- Boot ----------
   initLang();
+  recalcConfig();
 })();

@@ -431,6 +431,342 @@
     @media (max-width: 560px) {
       .process-steps { grid-template-columns: 1fr; }
     }
+
+    /* ================ MODULAR CONFIGURATOR ================ */
+    .config {
+      padding: clamp(80px, 10vw, 140px) 0;
+      background:
+        radial-gradient(1200px 600px at 50% -20%, #17130c 0%, #0a0705 60%, #050302 100%);
+      border-top: 1px solid rgba(201, 169, 106, .12);
+      border-bottom: 1px solid rgba(201, 169, 106, .12);
+    }
+    .config-head {
+      text-align: center;
+      max-width: 780px;
+      margin: 0 auto clamp(40px, 5vw, 72px);
+    }
+    .config-head h2 {
+      font-family: var(--font-he-display);
+      font-size: clamp(40px, 5.6vw, 72px);
+      line-height: 1.06;
+      color: var(--paper);
+      margin: 18px 0 20px;
+      font-weight: 400;
+    }
+    html[lang="en"] .config-head h2 {
+      font-family: var(--font-lt-display);
+      font-style: italic;
+    }
+    .config-head h2 em {
+      font-style: italic;
+      color: var(--gold-bright);
+      font-weight: 400;
+    }
+    .config-head p {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.7;
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    /* tier cards */
+    .tier-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+    .tier {
+      position: relative;
+      cursor: pointer;
+      display: block;
+    }
+    .tier input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .tier-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      background: linear-gradient(180deg, #0f0b07 0%, #070503 100%);
+      border: 1px solid rgba(201, 169, 106, .18);
+      border-radius: 4px;
+      padding: 36px 28px 32px;
+      height: 100%;
+      transition: all .3s cubic-bezier(.2,.7,.2,1);
+      position: relative;
+      overflow: hidden;
+    }
+    .tier-inner::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent 0%, rgba(201,169,106,.35) 50%, transparent 100%);
+      opacity: 0;
+      transition: opacity .3s;
+    }
+    .tier:hover .tier-inner {
+      border-color: rgba(201, 169, 106, .35);
+      transform: translateY(-2px);
+    }
+    .tier input:checked ~ .tier-inner {
+      border-color: var(--gold);
+      box-shadow:
+        0 0 0 1px rgba(201, 169, 106, .3),
+        0 20px 60px -20px rgba(201, 169, 106, .25);
+      background: linear-gradient(180deg, #1a1309 0%, #0a0705 100%);
+    }
+    .tier input:checked ~ .tier-inner::before { opacity: 1; }
+    .tier.featured .tier-inner {
+      border-color: rgba(201, 169, 106, .28);
+    }
+    .tier-badge {
+      position: absolute;
+      top: 14px;
+      inset-inline-end: 14px;
+      font-family: var(--font-lt-body);
+      font-size: 10px;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--gold-bright);
+      padding: 5px 10px;
+      border-radius: 2px;
+    }
+    .tier-top { display: flex; flex-direction: column; gap: 4px; }
+    .tier-name {
+      font-family: var(--font-he-display);
+      font-size: 34px;
+      line-height: 1;
+      color: var(--paper);
+      font-weight: 500;
+    }
+    .tier-name.t-en,
+    html[lang="en"] .tier-name {
+      font-family: var(--font-lt-display);
+      font-style: italic;
+      font-weight: 500;
+    }
+    .tier-kicker {
+      font-family: var(--font-lt-body);
+      font-size: 12px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .tier-price {
+      font-family: var(--font-lt-display);
+      font-size: 48px;
+      line-height: 1;
+      color: var(--gold-bright);
+      font-weight: 400;
+      letter-spacing: -.01em;
+      padding: 4px 0 8px;
+      border-bottom: 1px solid rgba(201, 169, 106, .16);
+    }
+    .tier-price .cur {
+      font-size: 26px;
+      color: var(--gold);
+      margin-inline-end: 4px;
+      vertical-align: 8px;
+    }
+    .tier-list {
+      list-style: none;
+      padding: 0; margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-family: var(--font-lt-body);
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--paper);
+    }
+    .tier-list li {
+      padding-inline-start: 20px;
+      position: relative;
+    }
+    .tier-list li::before {
+      content: '·';
+      color: var(--gold);
+      position: absolute;
+      inset-inline-start: 4px;
+      top: -2px;
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    /* add-ons */
+    .addons {
+      max-width: 1180px;
+      margin: clamp(60px, 8vw, 100px) auto 0;
+    }
+    .addons-head {
+      text-align: center;
+      margin: 0 auto 44px;
+      max-width: 680px;
+    }
+    .addons-head h3 {
+      font-family: var(--font-he-display);
+      font-size: clamp(28px, 3.6vw, 44px);
+      color: var(--paper);
+      margin: 14px 0 0;
+      font-weight: 400;
+    }
+    html[lang="en"] .addons-head h3 {
+      font-family: var(--font-lt-display);
+      font-style: italic;
+    }
+    .addons-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .addon {
+      position: relative;
+      cursor: pointer;
+      display: block;
+    }
+    .addon input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .addon-body {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: rgba(255, 255, 255, .02);
+      border: 1px solid rgba(201, 169, 106, .14);
+      border-radius: 3px;
+      padding: 20px 22px;
+      transition: all .25s ease;
+      height: 100%;
+      position: relative;
+    }
+    .addon-body::after {
+      content: '';
+      position: absolute;
+      top: 18px;
+      inset-inline-end: 18px;
+      width: 16px;
+      height: 16px;
+      border: 1px solid rgba(201, 169, 106, .4);
+      border-radius: 2px;
+      background: transparent;
+      transition: all .2s ease;
+    }
+    .addon:hover .addon-body {
+      border-color: rgba(201, 169, 106, .3);
+      background: rgba(201, 169, 106, .04);
+    }
+    .addon input:checked ~ .addon-body {
+      border-color: var(--gold);
+      background: rgba(201, 169, 106, .08);
+    }
+    .addon input:checked ~ .addon-body::after {
+      background: var(--gold-bright);
+      border-color: var(--gold-bright);
+      box-shadow: inset 0 0 0 3px #0a0705;
+    }
+    .addon-name {
+      font-family: var(--font-he-display);
+      font-size: 17px;
+      color: var(--paper);
+      padding-inline-end: 28px;
+      line-height: 1.3;
+    }
+    html[lang="en"] .addon-name,
+    .addon-name.t-en {
+      font-family: var(--font-lt-body);
+      font-weight: 500;
+    }
+    .addon-hint {
+      font-family: var(--font-lt-body);
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.55;
+      padding-inline-end: 28px;
+    }
+    .addon-add {
+      font-family: var(--font-lt-body);
+      font-size: 13px;
+      letter-spacing: .1em;
+      color: var(--gold-bright);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    /* total bar */
+    .config-total {
+      max-width: 1180px;
+      margin: clamp(48px, 6vw, 72px) auto 0;
+      background: linear-gradient(180deg, rgba(201, 169, 106, .08) 0%, transparent 100%);
+      border: 1px solid rgba(201, 169, 106, .24);
+      border-radius: 4px;
+      padding: 22px 28px;
+      position: sticky;
+      bottom: 16px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 4;
+    }
+    .total-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .total-left { display: flex; flex-direction: column; gap: 4px; }
+    .total-label {
+      font-family: var(--font-lt-body);
+      font-size: 11px;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .total-meta {
+      font-family: var(--font-lt-body);
+      font-size: 13px;
+      color: var(--paper);
+      opacity: .82;
+    }
+    .total-right {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .total-sum {
+      font-family: var(--font-lt-display);
+      font-size: clamp(32px, 4vw, 44px);
+      line-height: 1;
+      color: var(--gold-bright);
+      font-weight: 400;
+    }
+    .total-sum .cur {
+      font-size: 22px;
+      color: var(--gold);
+      margin-inline-end: 4px;
+      vertical-align: 6px;
+    }
+    .total-btn {
+      font-size: 13px !important;
+      padding: 14px 22px !important;
+    }
+
+    @media (max-width: 900px) {
+      .tier-grid { grid-template-columns: 1fr; max-width: 560px; }
+      .addons-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 560px) {
+      .addons-grid { grid-template-columns: 1fr; }
+      .total-inner { flex-direction: column; align-items: stretch; }
+      .total-right { justify-content: space-between; }
+      .config-total { position: static; }
+    }
   </style>
 </head>
 <body>
@@ -510,22 +846,6 @@
     <div class="hero-scroll" aria-hidden="true">Scroll</div>
   </section>
 
-  <!-- Press strip — placed just under hero for "real-product" credibility -->
-  <section class="press reveal">
-    <div class="wrap press-inner">
-      <span class="press-label">
-        <span class="t-he">כפי שפורסם ב</span>
-        <span class="t-en">As featured in</span>
-      </span>
-      <span class="press-logo">Haaretz</span>
-      <span class="press-logo small-caps">Tablet</span>
-      <span class="press-logo">Kikar · כיכר</span>
-      <span class="press-logo small-caps">Monocle</span>
-      <span class="press-logo">Globes</span>
-      <span class="press-logo small-caps">At Magazine</span>
-    </div>
-  </section>
-
   <!-- Manifesto editorial -->
   <section class="editorial">
     <div class="wrap">
@@ -577,16 +897,10 @@
     </div>
   </section>
 
-  <section class="portrait-strip reveal">
-    <img src="media/narkis-05-joy-color.jpg" alt="Narkis laughing · campaign" loading="lazy" />
-    <div class="caption t-he">״מִזְמוֹר לְתוֹדָה — הָרִיעוּ לַיְיָ כָּל הָאָרֶץ״</div>
-    <div class="caption t-en">"A Psalm of Thanksgiving — Make a joyful noise unto the Lord, all ye lands."</div>
-  </section>
-
   <div class="chapter-divider"></div>
 
   <!-- ============================================================ -->
-  <!-- II. SIDDUR                                                    -->
+  <!-- II. SIDDUR + CONFIGURATOR                                     -->
   <!-- ============================================================ -->
   <section class="siddur-hero" id="siddur">
     <div class="wrap">
@@ -612,9 +926,9 @@
           </p>
 
           <div class="hero-actions">
-            <a class="btn" href="#hakdasha">
-              <span class="t-he">עיצוב ההקדשה</span>
-              <span class="t-en">Design your dedication</span>
+            <a class="btn" href="#configure">
+              <span class="t-he">הרכבי את העותק שלך</span>
+              <span class="t-en">Configure your copy</span>
             </a>
             <a class="btn-ghost" href="#specs">
               <span class="t-he">מפרט</span>
@@ -714,11 +1028,12 @@
               </filter>
             </defs>
 
-            <!-- ambient floor shadow -->
-            <ellipse cx="260" cy="700" rx="230" ry="16" fill="#000" opacity=".55" />
-            <ellipse cx="260" cy="704" rx="180" ry="9" fill="#000" opacity=".7" />
+            <!-- ambient floor shadow (real shadow, not filter replacement) -->
+            <ellipse cx="260" cy="704" rx="230" ry="18" fill="#000" opacity=".32" />
+            <ellipse cx="260" cy="706" rx="190" ry="11" fill="#000" opacity=".45" />
+            <ellipse cx="260" cy="708" rx="150" ry="6" fill="#000" opacity=".6" />
 
-            <g filter="url(#groundShadow)">
+            <g>
               <!-- page stack on right side (gilded edges) -->
               <rect x="448" y="65" width="22" height="605" fill="#ebe1c4" />
               <rect x="448" y="65" width="22" height="605" fill="url(#pageStack)" opacity=".95" />
@@ -968,99 +1283,211 @@
     </div>
   </section>
 
-  <!-- Hakdasha live preview -->
-  <section class="hakdasha" id="hakdasha">
+  <!-- Configurator — modular tiers + add-ons -->
+  <section class="config" id="configure">
     <div class="wrap">
-      <div class="hakdasha-grid">
-        <div class="reveal">
-          <div class="preview-card" aria-live="polite">
-            <div class="kicker">Hakdasha · Personal Dedication</div>
-            <div class="body">
-              <div class="dedication" id="dedOut">לַיְלָה וּבֹקֶר וְצָהֳרַיִם / אָשִׂיחָה וְאֶהֱמֶה וְיִשְׁמַע קוֹלִי</div>
-              <div class="ornament">· ✦ ·</div>
-              <div class="owner placeholder" id="ownerOut">שמך כאן</div>
-            </div>
-            <div class="foot">
-              <span class="t-he">עותק מס' 001 / 360 · חתום ביד נרקיס</span>
-              <span class="t-en">No. 001 / 360 · Signed by Narkis</span>
-            </div>
-          </div>
+      <div class="config-head reveal">
+        <span class="eyebrow solo t-he">הרכב את הסידור שלך · Configure</span>
+        <span class="eyebrow solo t-en">Configure your siddur</span>
+        <h2 class="t-he">בחרי בסיס. <em>הוסיפי מה שחשוב לך.</em></h2>
+        <h2 class="t-en">Choose a base. <em>Add what matters to you.</em></h2>
+        <p class="t-he">שלוש מהדורות, תשע תוספות מודולריות. הסידור הבסיסי הוא סידור שלם — כל יתר המודולים הם העשרה אישית.</p>
+        <p class="t-en">Three base editions, nine modular upgrades. The base is a complete siddur — every other module is personal enrichment.</p>
+      </div>
+
+      <!-- TIER CARDS -->
+      <div class="tier-grid reveal" role="radiogroup" aria-label="Select base tier">
+        <label class="tier" data-tier="basic" data-price="1280">
+          <input type="radio" name="tier" value="basic" />
+          <span class="tier-inner">
+            <span class="tier-top">
+              <span class="tier-name t-he">בסיסי</span>
+              <span class="tier-name t-en">Basic</span>
+              <span class="tier-kicker t-he">המהדורה הפשוטה</span>
+              <span class="tier-kicker t-en">the plain edition</span>
+            </span>
+            <span class="tier-price"><span class="cur">₪</span>1,280</span>
+            <ul class="tier-list">
+              <li><span class="t-he">כריכת עור שחור</span><span class="t-en">Black leather binding</span></li>
+              <li><span class="t-he">נייר כותנה איטלקי 120 גרם</span><span class="t-en">120gsm Italian cotton paper</span></li>
+              <li><span class="t-he">184 עמודים · ממוספר ידנית</span><span class="t-en">184 pages · hand-numbered</span></li>
+              <li><span class="t-he">חתימה ידנית של נרקיס</span><span class="t-en">Signed by Narkis</span></li>
+              <li><span class="t-he">משלוח סטנדרטי בישראל</span><span class="t-en">Standard shipping in Israel</span></li>
+            </ul>
+          </span>
+        </label>
+
+        <label class="tier featured" data-tier="premium" data-price="2480">
+          <input type="radio" name="tier" value="premium" checked />
+          <span class="tier-inner">
+            <span class="tier-badge t-he">הנבחר · מומלץ</span>
+            <span class="tier-badge t-en">Most chosen</span>
+            <span class="tier-top">
+              <span class="tier-name t-he">פרימיום</span>
+              <span class="tier-name t-en">Premium</span>
+              <span class="tier-kicker t-he">המהדורה המלאה</span>
+              <span class="tier-kicker t-en">the full edition</span>
+            </span>
+            <span class="tier-price"><span class="cur">₪</span>2,480</span>
+            <ul class="tier-list">
+              <li><span class="t-he">הכל מהבסיסי +</span><span class="t-en">Everything in Basic +</span></li>
+              <li><span class="t-he">עור עיזים רך (Goatskin)</span><span class="t-en">Soft goatskin leather</span></li>
+              <li><span class="t-he">קצוות מוזהבים 22 קראט</span><span class="t-en">22-carat gilt page edges</span></li>
+              <li><span class="t-he">הקדשה בכתב יד של נרקיס</span><span class="t-en">Hand-written dedication by Narkis</span></li>
+              <li><span class="t-he">נרתיק פשתן + קופסת ארכיון שחורה</span><span class="t-en">Linen sleeve + black archival case</span></li>
+            </ul>
+          </span>
+        </label>
+
+        <label class="tier" data-tier="atelier" data-price="4680">
+          <input type="radio" name="tier" value="atelier" />
+          <span class="tier-inner">
+            <span class="tier-top">
+              <span class="tier-name t-he">אַטלייה</span>
+              <span class="tier-name t-en">Atelier</span>
+              <span class="tier-kicker t-he">18 עותקים בלבד</span>
+              <span class="tier-kicker t-en">18 copies only</span>
+            </span>
+            <span class="tier-price"><span class="cur">₪</span>4,680</span>
+            <ul class="tier-list">
+              <li><span class="t-he">הכל מפרימיום +</span><span class="t-en">Everything in Premium +</span></li>
+              <li><span class="t-he">מונוגרם אישי מוטבע בזהב</span><span class="t-en">Personal monogram gold-embossed</span></li>
+              <li><span class="t-he">אבזם כסף טהור</span><span class="t-en">Sterling silver clasp</span></li>
+              <li><span class="t-he">פגישה אישית עם נרקיס באטליה</span><span class="t-en">Personal meeting with Narkis at the atelier</span></li>
+              <li><span class="t-he">משלוח שליח מאובטח · עולמי</span><span class="t-en">Secure courier delivery · worldwide</span></li>
+            </ul>
+          </span>
+        </label>
+      </div>
+
+      <!-- ADD-ONS -->
+      <div class="addons reveal">
+        <div class="addons-head">
+          <span class="eyebrow solo t-he">תוספות מודולריות · Add-ons</span>
+          <span class="eyebrow solo t-en">Modular add-ons</span>
+          <h3 class="t-he">בחרי רק את מה שמתאים לך.</h3>
+          <h3 class="t-en">Pick only what you need.</h3>
         </div>
 
-        <div class="hakdasha-form reveal">
-          <span class="eyebrow solo t-he">עיצוב ההקדשה · Personalise</span>
-          <span class="eyebrow solo t-en">Personalise</span>
+        <div class="addons-grid">
+          <label class="addon" data-price="280">
+            <input type="checkbox" data-addon="monogram" />
+            <span class="addon-body">
+              <span class="addon-name t-he">מונוגרם אישי מוטבע</span>
+              <span class="addon-name t-en">Personal embossed monogram</span>
+              <span class="addon-hint t-he">האותיות שלך בזהב 22 קראט על הכריכה הקדמית</span>
+              <span class="addon-hint t-en">Your initials in 22-carat gold on the front cover</span>
+              <span class="addon-add">+₪280</span>
+            </span>
+          </label>
 
-          <h2 class="t-he" style="font-size: clamp(36px,4.6vw,64px); margin: 0;">
-            כל עותק <span class="gold">נושא את שמך</span>
-          </h2>
-          <h2 class="t-en" style="font-size: clamp(36px,4.6vw,64px); margin: 0;">
-            Every copy <span class="gold">carries your name</span>
-          </h2>
+          <label class="addon" data-price="480">
+            <input type="checkbox" data-addon="clasp" />
+            <span class="addon-body">
+              <span class="addon-name t-he">אבזם כסף</span>
+              <span class="addon-name t-en">Silver clasp</span>
+              <span class="addon-hint t-he">אבזם כסף סטרלינג 925, מעובד ידנית ע״י צורף ירושלמי</span>
+              <span class="addon-hint t-en">Sterling 925 silver clasp, hand-forged by a Jerusalem silversmith</span>
+              <span class="addon-add">+₪480</span>
+            </span>
+          </label>
 
-          <p class="t-he" style="color: var(--paper); font-size: 16px; line-height: 1.8; margin: 0;">
-            ההקדשה מודפסת באות מיוחדת בעמוד ההקדשה של הסידור. הזינו את הפרטים — ההקדשה משתקפת מייד בהדמיה לצדכם.
-          </p>
-          <p class="t-en" style="color: var(--paper); font-size: 16px; line-height: 1.8; margin: 0;">
-            Your dedication is printed in a custom cut on the siddur's dedication page. Type in below — the preview updates live beside you.
-          </p>
+          <label class="addon" data-price="380">
+            <input type="checkbox" data-addon="slipcase" />
+            <span class="addon-body">
+              <span class="addon-name t-he">נרתיק עור תואם</span>
+              <span class="addon-name t-en">Matching leather slipcase</span>
+              <span class="addon-hint t-he">נרתיק בצבע הסידור, רקום בחוט זהב</span>
+              <span class="addon-hint t-en">Slipcase matching the cover, gold-stitched</span>
+              <span class="addon-add">+₪380</span>
+            </span>
+          </label>
 
-          <div class="field">
-            <label for="ownerInput">
-              <span class="t-he">לכבוד · Dedicated To</span>
-              <span class="t-en">Dedicated To</span>
-            </label>
-            <input id="ownerInput" type="text" data-ph-he="שם מקבל הסידור" data-ph-en="Recipient's name" autocomplete="off" />
+          <label class="addon" data-price="240">
+            <input type="checkbox" data-addon="dedication" />
+            <span class="addon-body">
+              <span class="addon-name t-he">הקדשה אישית מורחבת</span>
+              <span class="addon-name t-en">Extended personal dedication</span>
+              <span class="addon-hint t-he">עד 280 תווים, מודפס בעמוד ההקדשה המיוחד</span>
+              <span class="addon-hint t-en">Up to 280 characters, printed on the dedication page</span>
+              <span class="addon-add">+₪240</span>
+            </span>
+          </label>
+
+          <label class="addon" data-price="180">
+            <input type="checkbox" data-addon="family" />
+            <span class="addon-body">
+              <span class="addon-name t-he">דף עץ משפחה</span>
+              <span class="addon-name t-en">Family tree leaf</span>
+              <span class="addon-hint t-he">דף פנימי לרישום שמות שלוש דורות</span>
+              <span class="addon-hint t-en">Inner leaf to record three generations of names</span>
+              <span class="addon-add">+₪180</span>
+            </span>
+          </label>
+
+          <label class="addon" data-price="340">
+            <input type="checkbox" data-addon="bilingual" />
+            <span class="addon-body">
+              <span class="addon-name t-he">מהדורה דו־לשונית</span>
+              <span class="addon-name t-en">Bilingual edition</span>
+              <span class="addon-hint t-he">עברית מול אנגלית · תרגום מלא בעמודים מקבילים</span>
+              <span class="addon-hint t-en">Hebrew facing English · full translation across facing pages</span>
+              <span class="addon-add">+₪340</span>
+            </span>
+          </label>
+
+          <label class="addon" data-price="80">
+            <input type="checkbox" data-addon="ribbons" />
+            <span class="addon-body">
+              <span class="addon-name t-he">סימניות משי נוספות</span>
+              <span class="addon-name t-en">Extra silk ribbons</span>
+              <span class="addon-hint t-he">שלוש סימניות נוספות בצבעי זהב, שזור, וסגול עמוק</span>
+              <span class="addon-hint t-en">Three extra silk ribbons · gold, crimson, deep violet</span>
+              <span class="addon-add">+₪80</span>
+            </span>
+          </label>
+
+          <label class="addon" data-price="160">
+            <input type="checkbox" data-addon="pouch" />
+            <span class="addon-body">
+              <span class="addon-name t-he">פאוצ׳ נסיעות מגן</span>
+              <span class="addon-name t-en">Travel pouch</span>
+              <span class="addon-hint t-he">עור דק עמיד למים, לנסיעה יומית</span>
+              <span class="addon-hint t-en">Slim water-resistant leather · for daily travel</span>
+              <span class="addon-add">+₪160</span>
+            </span>
+          </label>
+
+          <label class="addon" data-price="420">
+            <input type="checkbox" data-addon="meeting" />
+            <span class="addon-body">
+              <span class="addon-name t-he">פגישה עם נרקיס</span>
+              <span class="addon-name t-en">Meeting with Narkis</span>
+              <span class="addon-hint t-he">פגישה אישית של 60 דקות באטליה בתל אביב</span>
+              <span class="addon-hint t-en">A 60-minute personal meeting at the Tel Aviv atelier</span>
+              <span class="addon-add">+₪420</span>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <!-- RUNNING TOTAL -->
+      <div class="config-total reveal">
+        <div class="total-inner">
+          <div class="total-left">
+            <span class="total-label t-he">סה״כ · Total</span>
+            <span class="total-label t-en">Total</span>
+            <span class="total-meta t-he" id="tierMetaHe">פרימיום · ללא תוספות</span>
+            <span class="total-meta t-en" id="tierMetaEn">Premium · no add-ons</span>
           </div>
-
-          <div class="field">
-            <label for="dedInput">
-              <span class="t-he">ההקדשה · Inscription</span>
-              <span class="t-en">Inscription</span>
-            </label>
-            <textarea id="dedInput" data-ph-he="פסוק, שורה משיר, איחול אישי — עד 120 תווים" data-ph-en="A verse, a line from a song, a personal blessing — up to 120 characters" maxlength="140"></textarea>
-          </div>
-
-          <div>
-            <a class="btn" href="#reserve">
-              <span class="t-he">המשיכי לשריון</span>
-              <span class="t-en">Continue to reserve</span>
+          <div class="total-right">
+            <span class="total-sum"><span class="cur">₪</span><span id="totalOut">2,480</span></span>
+            <a class="btn total-btn" href="#reserve">
+              <span class="t-he">שריוני את העותק</span>
+              <span class="t-en">Reserve this copy</span>
             </a>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Gallery — campaign photos -->
-  <section class="gallery">
-    <div class="wrap">
-      <div class="gallery-intro reveal">
-        <span class="eyebrow solo t-he">גלריית הקמפיין · Campaign</span>
-        <span class="eyebrow solo t-en">Campaign gallery</span>
-        <h2 class="t-he">פנים, קול, <em>ויד.</em></h2>
-        <h2 class="t-en">A face, a voice, <em>and a hand.</em></h2>
-        <p class="t-he">קמפיין הצילום לוּוָה בידי עידן מירב, בתל אביב, חורף MMXXVI.</p>
-        <p class="t-en">Campaign photography by Idan Meirav, Tel Aviv, winter MMXXVI.</p>
-      </div>
-
-      <div class="gallery-grid reveal">
-        <figure class="gal-item tall">
-          <img src="media/narkis-06-intimate-bw.jpg" alt="Narkis · intimate close-up" loading="lazy" />
-          <span class="tag">№ 03 · Portrait</span>
-        </figure>
-        <figure class="gal-item wide">
-          <img src="media/narkis-09-laughing-bw.jpg" alt="Narkis laughing" loading="lazy" />
-          <span class="tag">№ 04 · Joy</span>
-        </figure>
-        <figure class="gal-item wide">
-          <img src="media/narkis-07-contemplative-bw.jpg" alt="Narkis contemplative" loading="lazy" />
-          <span class="tag">№ 05 · Stillness</span>
-        </figure>
-        <figure class="gal-item tall">
-          <img src="media/narkis-08-profile-bw.jpg" alt="Narkis profile" loading="lazy" />
-          <span class="tag">№ 06 · Profile</span>
-        </figure>
       </div>
     </div>
   </section>
@@ -1112,166 +1539,12 @@
     </div>
   </section>
 
-  <!-- What's included in the box -->
-  <section class="included">
-    <div class="wrap">
-      <div class="included-grid">
-        <div class="reveal">
-          <figure class="photo-frame wide" style="aspect-ratio: 4/5;">
-            <img src="media/narkis-07-contemplative-bw.jpg" alt="Narkis portrait · contemplative" loading="lazy" />
-          </figure>
-          <div class="photo-caption">
-            <span class="num">№ 07</span>
-            <span>Portrait · Studio</span>
-          </div>
-        </div>
-
-        <div class="included-text reveal">
-          <span class="eyebrow solo t-he">מה בקופסה · In the box</span>
-          <span class="eyebrow solo t-en">In the box</span>
-          <h2 class="t-he">הקופסה <em>השחורה.</em></h2>
-          <h2 class="t-en">The <em>black box.</em></h2>
-
-          <ul class="included-list">
-            <li>
-              <span class="mark">i.</span>
-              <span>
-                <span class="label t-he">הסידור עצמו</span>
-                <span class="label t-en">The siddur itself</span>
-                <span class="hint t-he">184 עמודים · כריכת עור · ממוספר ידנית</span>
-                <span class="hint t-en">184 pages · leather bound · hand-numbered</span>
-              </span>
-            </li>
-            <li>
-              <span class="mark">ii.</span>
-              <span>
-                <span class="label t-he">נרתיק בד חליפין</span>
-                <span class="label t-en">A linen sleeve</span>
-                <span class="hint t-he">פשתן טבעי · רקום בחוט זהב עם המונוגרם</span>
-                <span class="hint t-en">Natural linen · embroidered with the gold monogram</span>
-              </span>
-            </li>
-            <li>
-              <span class="mark">iii.</span>
-              <span>
-                <span class="label t-he">מכתב יד מנרקיס</span>
-                <span class="label t-en">A handwritten letter from Narkis</span>
-                <span class="hint t-he">על דף נייר הצהוב של הסידור · אישי, לפי מספר העותק</span>
-                <span class="hint t-en">On the same yellow paper as the siddur · personal, per copy number</span>
-              </span>
-            </li>
-            <li>
-              <span class="mark">iv.</span>
-              <span>
-                <span class="label t-he">תעודת המהדורה</span>
-                <span class="label t-en">Certificate of edition</span>
-                <span class="hint t-he">מספור מ־001 עד 360 · חותם הזהב של האטליה</span>
-                <span class="hint t-en">Numbered 001 to 360 · the atelier's gold seal</span>
-              </span>
-            </li>
-            <li>
-              <span class="mark">v.</span>
-              <span>
-                <span class="label t-he">קופסת קרטון שחור</span>
-                <span class="label t-en">Black archival case</span>
-                <span class="hint t-he">קרטון בד שחור · עם כיסוי מגנט · אפשר לשמור לדורות</span>
-                <span class="hint t-en">Black cloth-covered card · magnetic lid · made to keep for generations</span>
-              </span>
-            </li>
-          </ul>
-
-          <p class="small t-he" style="font-family: var(--font-lt-body); font-size: 13px; color: var(--muted); margin-top: 18px;">
-            משלוח אישי באזור גוש דן · שליחות מאובטחת לכל ישראל · משלוח בינלאומי באירגון עם הלקוח
-          </p>
-          <p class="small t-en" style="font-family: var(--font-lt-body); font-size: 13px; color: var(--muted); margin-top: 18px;">
-            Personal delivery in Gush Dan · Secure courier elsewhere in Israel · International shipping arranged with the client
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Testimonials -->
-  <section class="quotes">
-    <div class="wrap">
-      <div class="gallery-intro reveal">
-        <span class="eyebrow solo t-he">מי שכבר הזמינה · Early words</span>
-        <span class="eyebrow solo t-en">Early words</span>
-        <h2 class="t-he">מה אומרים הראשונים <em>שהחזיקו אותו.</em></h2>
-        <h2 class="t-en">What the first <em>holders said.</em></h2>
-      </div>
-
-      <div class="quotes-grid reveal">
-        <div class="q-card">
-          <blockquote>
-            <span class="t-he">כשפתחתי את הקופסה רעדתי. זה לא ספר — זה חפץ שעובר בין דורות.</span>
-            <span class="t-en">When I opened the box I shook. It isn't a book — it's an object that will pass between generations.</span>
-          </blockquote>
-          <cite>
-            <span class="t-he">יעל מ.</span>
-            <span class="t-en">Yael M.</span>
-            <span class="t-he">רמת השרון · עותק מס' 004</span>
-            <span class="t-en">Ramat Hasharon · copy no. 004</span>
-          </cite>
-        </div>
-        <div class="q-card">
-          <blockquote>
-            <span class="t-he">ההקדשה בכתב ידה של אמי. אני פותחת אותו כל בוקר. שווה כל שקל שלו, ופי עשרה.</span>
-            <span class="t-en">A dedication in my mother's handwriting. I open it every morning. Worth every shekel, and ten times more.</span>
-          </blockquote>
-          <cite>
-            <span class="t-he">תמר ה.</span>
-            <span class="t-en">Tamar H.</span>
-            <span class="t-he">תל אביב · עותק מס' 012</span>
-            <span class="t-en">Tel Aviv · copy no. 012</span>
-          </cite>
-        </div>
-        <div class="q-card">
-          <blockquote>
-            <span class="t-he">קניתי שניים — אחד לחתונת בתי ואחד לעצמי. חיכיתי חמישה חודשים. שווה היה בהחלט.</span>
-            <span class="t-en">I bought two — one for my daughter's wedding and one for myself. I waited five months. Well worth it.</span>
-          </blockquote>
-          <cite>
-            <span class="t-he">דוד ש.</span>
-            <span class="t-en">David S.</span>
-            <span class="t-he">ירושלים · עותקים 018 ו־019</span>
-            <span class="t-en">Jerusalem · copies 018 &amp; 019</span>
-          </cite>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <div class="chapter-divider"></div>
 
   <!-- ============================================================ -->
-  <!-- III. STORY                                                    -->
+  <!-- III. STORY (compact)                                          -->
   <!-- ============================================================ -->
-  <section class="story-hero" id="story">
-    <div class="story-hero-bg" style="background-image: url('media/narkis-04-trench-portrait.jpg');"></div>
-    <div class="story-hero-content reveal">
-      <span class="eyebrow solo t-he">הסיפור · The Story</span>
-      <span class="eyebrow solo t-en">The Story</span>
-
-      <h1 class="t-he">
-        לֹא פַּעֲמוֹן —<br />שַׁעַר.
-        <em>not a bell — a gate</em>
-      </h1>
-      <h1 class="t-en">
-        Not a bell —<br />a gate.
-        <em>לא פעמון — שער</em>
-      </h1>
-
-      <p class="t-he" style="color: var(--paper); font-size: 18px; line-height: 1.7; margin: 0; max-width: 520px;">
-        שיחה קצרה על הסידור, על הנוסח שבחרה, ועל הרגעים שבהם מילה של תפילה מצילה יום.
-      </p>
-      <p class="t-en" style="color: var(--paper); font-size: 18px; line-height: 1.7; margin: 0; max-width: 520px;">
-        A short conversation about the siddur, the rite she chose, and the moments when a single word of prayer saves a day.
-      </p>
-    </div>
-  </section>
-
-  <section class="story-body">
+  <section class="story-body" id="story">
     <div class="wrap">
       <div class="story-body-grid">
         <div class="story-text reveal">
@@ -1344,35 +1617,11 @@
         </details>
         <details class="faq-item">
           <summary>
-            <span class="t-he">מה אם ההקדשה שלי תהיה באותיות לטיניות?</span>
-            <span class="t-en">What if my dedication is in Latin letters?</span>
+            <span class="t-he">מה הנוסח? אפשר לראות דוגמה?</span>
+            <span class="t-en">Which rite — and can I see a sample?</span>
           </summary>
-          <p class="faq-body t-he">אפשר. ההקדשה מודפסת באותיות יד שנכתבות במיוחד עבור העותק שלך — בעברית, באנגלית, או בשני השפות יחד.</p>
-          <p class="faq-body t-en">It's fine. The dedication is typeset in a calligraphic cut written specifically for your copy — in Hebrew, English, or both together.</p>
-        </details>
-        <details class="faq-item">
-          <summary>
-            <span class="t-he">מה הנוסח? אשכנז או ספרד?</span>
-            <span class="t-en">Which rite — Ashkenaz or Sefarad?</span>
-          </summary>
-          <p class="faq-body t-he">המהדורה הראשונה היא בנוסח עדות המזרח, בהדרכת הרב מרדכי עוזיאל. המהדורה הבאה תהיה בנוסח אשכנז. מעוניינת להיכנס לרשימת ההמתנה? נשלח הודעה.</p>
-          <p class="faq-body t-en">The first edition follows the Eastern (Sefardi) rite, under the guidance of Rabbi Mordechai Uziel. The next edition will follow the Ashkenazi rite. Would you like to join the waitlist? Let us know.</p>
-        </details>
-        <details class="faq-item">
-          <summary>
-            <span class="t-he">מה מדיניות ההחזרה?</span>
-            <span class="t-en">What is the return policy?</span>
-          </summary>
-          <p class="faq-body t-he">כיוון שכל עותק נקשר לשם וסבב את התהליך הידני — אין החזרות לאחר חתימה ומספור. עד החתימה (כשבוע לפני המשלוח), ניתן לבטל את הרכישה עם החזר מלא.</p>
-          <p class="faq-body t-en">Because each copy is personalised with a name and moves through hand-made stages — no returns after signing and numbering. Until the signing (about a week before shipping), orders can be cancelled with a full refund.</p>
-        </details>
-        <details class="faq-item">
-          <summary>
-            <span class="t-he">האם אפשר לראות דוגמה לפני ההזמנה?</span>
-            <span class="t-en">Can I see a sample before ordering?</span>
-          </summary>
-          <p class="faq-body t-he">בהחלט. באטליה בתל אביב יש עותק אפס לצפייה ביד — בתיאום מראש, בימי חמישי אחר הצהריים.</p>
-          <p class="faq-body t-en">Yes. A proof copy is kept for viewing in person at the Tel Aviv atelier — by appointment, Thursday afternoons.</p>
+          <p class="faq-body t-he">המהדורה הראשונה בנוסח עדות המזרח. באטליה בתל אביב יש עותק אפס לצפייה בתיאום מראש, בימי חמישי אחה״צ.</p>
+          <p class="faq-body t-en">The first edition follows the Eastern (Sefardi) rite. A proof copy is available for viewing at the Tel Aviv atelier by appointment — Thursday afternoons.</p>
         </details>
       </div>
     </div>
