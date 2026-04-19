@@ -999,8 +999,9 @@
       pointer-events: none;
       z-index: 30;
       overflow: hidden;
-      transform: translateZ(0);
-      will-change: transform;
+      /* NO transform / will-change — they create a fixed-positioning
+         containing block which would hijack verses' position:fixed
+         and make them scroll with the document on iOS Safari. */
     }
     #thread-bg {
       position: absolute;
@@ -1012,11 +1013,15 @@
       mix-blend-mode: screen;
     }
     #verses-layer {
-      position: absolute;
+      /* Body-level fixed layer — NO transform/filter/will-change,
+         so .verse-ghost children inherit a clean viewport as their
+         containing block on every browser (including iOS Safari). */
+      position: fixed;
       inset: 0;
       width: 100%;
       height: 100%;
       pointer-events: none;
+      z-index: 31;
     }
     .verse-ghost {
       /* fixed directly — so verses are pinned to the viewport itself
@@ -1067,7 +1072,7 @@
     .verse-ghost.tier-faded  { text-shadow: 0 0 4px rgba(201,169,106,.15); }
 
     /* Desktop: ambient on top, content z=1 */
-    body > *:not(#ambient-bg) { position: relative; z-index: 1; }
+    body > *:not(#ambient-bg):not(#verses-layer) { position: relative; z-index: 1; }
     .topbar { position: sticky; z-index: 50; }
 
     html, body { overflow-x: hidden; }
@@ -1115,8 +1120,11 @@
 <body>
   <div id="ambient-bg" aria-hidden="true">
     <canvas id="thread-bg"></canvas>
-    <div id="verses-layer"></div>
   </div>
+  <!-- verses-layer is OUTSIDE #ambient-bg to guarantee no ancestor
+       transform/filter/will-change can hijack .verse-ghost's
+       position:fixed. iOS Safari is strict about this. -->
+  <div id="verses-layer" aria-hidden="true"></div>
   <header class="topbar">
     <nav class="nav-main right" aria-label="main">
       <a href="#home" data-nav="home" class="active">

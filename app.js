@@ -729,35 +729,47 @@
       }, delay);
     }
 
-    // On scroll, any existing verse whose current viewport rect now overlaps
-    // a text element must fade out immediately (the user's constraint:
-    // verses never on top of text).
-    let scrollDebounce = null;
+    // After the scroll SETTLES (not during it), fade out verses that are
+    // SIGNIFICANTLY overlapping text. We deliberately wait ~450ms after scroll
+    // stops and require a real area overlap (not just a 4px pad touch), so
+    // that verses feel PERSISTENT during scroll — which is what the user
+    // wants: they stay pinned to the viewport like a subtle background layer,
+    // not disappearing on every scroll movement.
+    let scrollSettleTimer = null;
+    function rectArea(r) { return Math.max(0, r.right - r.left) * Math.max(0, r.bottom - r.top); }
+    function rectIntersectArea(a, b) {
+      const ix = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
+      const iy = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+      return ix * iy;
+    }
     function pruneVersesOverlappingText() {
       const textRects = getViewportTextRects();
-      const verses = versesLayer.querySelectorAll(".verse-ghost");
+      const verses = document.querySelectorAll(".verse-ghost");
       for (const v of verses) {
         if (v.dataset.pruning === "1") continue;
         const r = v.getBoundingClientRect();
         if (r.width <= 0) continue;
-        const rect = {
-          left: r.left, right: r.right, top: r.top, bottom: r.bottom
-        };
-        let conflict = false;
+        const rect = { left: r.left, right: r.right, top: r.top, bottom: r.bottom };
+        const verseArea = rectArea(rect) || 1;
+        let maxOverlapFrac = 0;
         for (const tr of textRects) {
-          if (rectsOverlap(rect, tr, 4)) { conflict = true; break; }
+          const o = rectIntersectArea(rect, tr) / verseArea;
+          if (o > maxOverlapFrac) maxOverlapFrac = o;
+          if (maxOverlapFrac > 0.4) break;
         }
-        if (conflict) {
+        // Only prune when >40% of verse is covering text — ignore grazing contact
+        if (maxOverlapFrac > 0.4) {
           v.dataset.pruning = "1";
-          // Force-gone all chars → CSS transitions them out
           v.querySelectorAll(".char").forEach((c) => c.classList.add("gone"));
           setTimeout(() => { if (v.parentNode) v.parentNode.removeChild(v); }, 420);
         }
       }
     }
     window.addEventListener("scroll", () => {
-      clearTimeout(scrollDebounce);
-      scrollDebounce = setTimeout(pruneVersesOverlappingText, 120);
+      clearTimeout(scrollSettleTimer);
+      // 450ms AFTER scroll stops → verses persist during momentum scroll,
+      // eliminating any perception of "verses scrolling with the page"
+      scrollSettleTimer = setTimeout(pruneVersesOverlappingText, 450);
     }, { passive: true });
 
     // ---- Main animation loop ----
