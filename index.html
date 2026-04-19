@@ -970,25 +970,26 @@
     .topbar { animation: topbarIn 1s cubic-bezier(.22,.7,.24,1) both; }
 
     /* ============ AMBIENT BACKGROUND LAYER ============ */
-    /* Single fixed container hosting:
+    /* Single fixed overlay hosting:
        - #thread-bg  : canvas with weaving gold threads + ornamental figures
        - #verses-layer : Hebrew pesukim that type out and fade
-       All sits behind content but above body bg. Screen-blends for glow. */
+       Placed ABOVE section backgrounds (which are opaque) but below topbar.
+       mix-blend-mode: screen adds gold light without obscuring content. */
     #ambient-bg {
       position: fixed;
       inset: 0;
       width: 100vw;
       height: 100vh;
       pointer-events: none;
-      z-index: 0;
+      z-index: 30;
       overflow: hidden;
+      mix-blend-mode: screen;
     }
     #thread-bg {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
-      mix-blend-mode: screen;
       opacity: 1;
       display: block;
     }
@@ -1025,9 +1026,9 @@
     .verse-ghost .char.shown { opacity: 1; transform: translateY(0); }
     .verse-ghost.fading { opacity: 0; }
 
-    /* Keep all site content above ambient bg */
+    /* Site content stacking */
     body > *:not(#ambient-bg) { position: relative; z-index: 1; }
-    .topbar { z-index: 50; }
+    .topbar { position: sticky; z-index: 50; }
 
     /* Honor reduced motion: still show threads, but dimmed */
     @media (prefers-reduced-motion: reduce) {
