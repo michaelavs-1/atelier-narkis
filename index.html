@@ -1027,6 +1027,24 @@
     .verse-ghost .char.shown { opacity: 1; transform: translateY(0); }
     .verse-ghost .char.gone  { opacity: 0; transform: translateY(-3px); }
 
+    /* Opacity tiers — the ambient flow has bold, medium, and ghost verses */
+    .verse-ghost.tier-bold .char {
+      color: rgba(255, 220, 160, 1);
+      font-weight: 500;
+    }
+    .verse-ghost.tier-bold .char.shown { opacity: 1; }
+    .verse-ghost.tier-medium .char {
+      color: rgba(224, 194, 128, .9);
+    }
+    .verse-ghost.tier-medium .char.shown { opacity: .75; }
+    .verse-ghost.tier-faded .char {
+      color: rgba(201, 169, 106, .7);
+    }
+    .verse-ghost.tier-faded .char.shown { opacity: .35; }
+    .verse-ghost.tier-bold   { text-shadow: 0 0 12px rgba(255,220,160,.5), 0 0 20px rgba(201,169,106,.3); }
+    .verse-ghost.tier-medium { text-shadow: 0 0 8px rgba(201,169,106,.35); }
+    .verse-ghost.tier-faded  { text-shadow: 0 0 4px rgba(201,169,106,.15); }
+
     /* Desktop: ambient on top, content z=1 */
     body > *:not(#ambient-bg) { position: relative; z-index: 1; }
     .topbar { position: sticky; z-index: 50; }
@@ -1034,51 +1052,34 @@
     html, body { overflow-x: hidden; }
     body { background: var(--ink); min-height: 100vh; }
 
-    /* ---------- MOBILE: bulletproof iOS rendering ---------- */
-    /* We hit the iOS Safari black-screen bug via:
-         position:fixed + mix-blend-mode + large canvas
-       Solution on mobile:
-         - hide the heavy canvas entirely (no compositing bug possible)
-         - keep only lightweight letter-chase verses, positioned absolute
-           inside a NON-fixed wrapper pinned to the hero height
+    /* ---------- MOBILE: full ambient, no iOS black-screen ----------
+       iOS Safari compositing bug triggers on:
+         position:fixed + mix-blend-mode:screen child + large canvas
+       We keep #ambient-bg position:fixed (so verses DON'T scroll with
+       content — they stay in place while new ones appear/disappear),
+       but we REMOVE mix-blend-mode on mobile. Canvas has alpha:true
+       so only drawn gold strokes are opaque; transparent pixels let
+       the page show through naturally. No blend mode → no iOS bug.
     */
     @media (max-width: 768px), (pointer: coarse) {
       #ambient-bg {
-        /* NOT fixed → no iOS compositing bug */
-        position: absolute;
-        top: 0; left: 0; right: 0;
-        height: 100vh;
-        z-index: 0;
+        /* stays fixed so verses don't scroll with page */
+        position: fixed;
+        z-index: 30;
+        /* Drop transform/will-change that can trigger iOS compositing bug */
         transform: none;
         will-change: auto;
       }
       #thread-bg {
-        /* Disable the canvas on mobile — guarantees no black screen */
-        display: none !important;
+        display: block !important;
+        mix-blend-mode: normal !important;   /* CRITICAL on iOS */
+        opacity: .95;
       }
       .verse-ghost {
-        mix-blend-mode: normal;   /* screen blend can fail on iOS */
-        font-size: 13px !important;
-        text-shadow: 0 0 6px rgba(201,169,106,.4);
-      }
-      body > *:not(#ambient-bg) { z-index: 2; }
-      body { background: var(--ink) !important; }
-
-      /* Subtle CSS-only gold ambient replacement for hero */
-      .hero::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        background:
-          radial-gradient(ellipse 60% 40% at 80% 20%, rgba(201,169,106,.12) 0%, transparent 60%),
-          radial-gradient(ellipse 50% 35% at 15% 85%, rgba(224,194,128,.09) 0%, transparent 60%);
-        z-index: 1;
-        animation: mobileGlow 12s ease-in-out infinite alternate;
-      }
-      @keyframes mobileGlow {
-        0%   { opacity: .6; transform: translateY(0); }
-        100% { opacity: 1;  transform: translateY(-6px); }
+        mix-blend-mode: normal !important;   /* CRITICAL on iOS */
+        text-shadow:
+          0 0 6px rgba(201,169,106,.6),
+          0 0 14px rgba(201,169,106,.25);
       }
     }
 

@@ -486,7 +486,7 @@
 
     // Live snake pool
     const snakes = [];
-    const MAX_SNAKES = reduced ? 3 : (isMobile ? 4 : 7);
+    const MAX_SNAKES = reduced ? 3 : (isMobile ? 5 : 8);
 
     // =========================================================
     //   VERSES — letter chases letter
@@ -511,24 +511,46 @@
     ];
 
     let verseTimer = null;
-    function spawnVerse() {
+
+    // Pick a tier for a new verse.
+    // 20% bold (big, bright), 50% medium, 30% faded (tiny, ghostly)
+    function pickTier() {
+      const r = Math.random();
+      if (r < 0.2) return "bold";
+      if (r < 0.7) return "medium";
+      return "faded";
+    }
+
+    function spawnVerse(opts) {
       if (!versesLayer) return;
+      const tier = (opts && opts.tier) || pickTier();
       const text = VERSES[Math.floor(Math.random() * VERSES.length)];
       const vw = window.innerWidth, vh = window.innerHeight;
-      // On mobile use smaller fonts
-      const baseSize = isMobile ? 12 : 18;
-      const variance = isMobile ? 6 : 14;
+
+      // Size by tier (so bold verses actually look bold)
+      let baseSize, variance;
+      if (tier === "bold") {
+        baseSize = isMobile ? 20 : 30;
+        variance = isMobile ? 8 : 16;
+      } else if (tier === "medium") {
+        baseSize = isMobile ? 13 : 18;
+        variance = isMobile ? 5 : 10;
+      } else {
+        baseSize = isMobile ? 10 : 13;
+        variance = isMobile ? 3 : 6;
+      }
       const fontSize = baseSize + Math.random() * variance;
+
       const side = Math.random() < 0.5 ? "left" : "right";
-      const topMin = isMobile ? 80 : 60;
+      const topMin = isMobile ? 70 : 60;
       const topMax = Math.max(topMin + 40, vh - 120);
       const top = topMin + Math.random() * (topMax - topMin);
-      const rotation = (Math.random() - 0.5) * (isMobile ? 5 : 10);
-      const sideInset = isMobile ? 8 : 10;
-      const sideRange = isMobile ? 30 : 80;
+      const rotation = (Math.random() - 0.5) * (isMobile ? 6 : 10);
+      const sideInset = isMobile ? 4 : 10;
+      const sideRange = isMobile ? 40 : 120;
 
       const el = document.createElement("div");
-      el.className = "verse-ghost";
+      el.className = "verse-ghost tier-" + tier;
       el.style.fontSize = fontSize + "px";
       el.style.top = top + "px";
       if (side === "left") {
@@ -552,9 +574,18 @@
       versesLayer.appendChild(el);
 
       const charEls = el.querySelectorAll(".char");
-      // Timing: each char appears at i*perChar and fades at i*perChar + visibleWindow
-      const perChar = 110 + Math.random() * 50;      // ~110–160ms
-      const visibleWindow = 1400 + Math.random() * 600; // ~1.4–2s
+      // Bold verses linger slightly longer; faded flicker faster
+      let perChar, visibleWindow;
+      if (tier === "bold") {
+        perChar = 130 + Math.random() * 40;         // 130–170ms
+        visibleWindow = 1800 + Math.random() * 700; // 1.8–2.5s
+      } else if (tier === "medium") {
+        perChar = 100 + Math.random() * 50;         // 100–150ms
+        visibleWindow = 1300 + Math.random() * 500;
+      } else {
+        perChar = 70 + Math.random() * 40;          // 70–110ms (fastest)
+        visibleWindow = 900 + Math.random() * 400;
+      }
       const exitFade = 360;
 
       charEls.forEach((c, i) => {
@@ -567,10 +598,17 @@
     }
 
     function scheduleNextVerse() {
-      // Keep the flow dense — new verse begins before previous finishes
-      const delay = reduced ? 6000 : (isMobile ? 3800 : 2800 + Math.random() * 2000);
+      // Much denser flow so there's constant activity. On mobile we still
+      // spawn often but stagger to avoid overwhelming the viewport.
+      const delay = reduced
+        ? 4000
+        : (isMobile ? (600 + Math.random() * 900) : (500 + Math.random() * 700));
       verseTimer = setTimeout(() => {
         spawnVerse();
+        // Occasionally spawn a paired verse on the opposite tier for contrast
+        if (!reduced && Math.random() < 0.35) {
+          setTimeout(() => spawnVerse(), 200 + Math.random() * 300);
+        }
         scheduleNextVerse();
       }, delay);
     }
@@ -582,7 +620,7 @@
     const TARGET_FPS = reduced ? 20 : (isMobile ? 30 : 40);
     const FRAME_MS = 1000 / TARGET_FPS;
     let lastSnakeSpawn = 0;
-    const SNAKE_SPAWN_INTERVAL = reduced ? 3000 : (isMobile ? 1500 : 850);
+    const SNAKE_SPAWN_INTERVAL = reduced ? 3000 : (isMobile ? 1000 : 700);
 
     function frame(now) {
       if (now - lastFrame >= FRAME_MS) {
@@ -609,15 +647,19 @@
       }
       rafId = requestAnimationFrame(frame);
     }
-    // On mobile the canvas is display:none (to avoid iOS Safari compositing
-    // bugs). Skip the RAF loop entirely so we don't burn battery on
-    // something the user can't see.
-    if (!isMobile) {
-      rafId = requestAnimationFrame(frame);
-    }
+    // Always run the RAF loop — mobile now shows the canvas too (we fixed
+    // the iOS black-screen bug by dropping mix-blend-mode instead of hiding
+    // the canvas).
+    rafId = requestAnimationFrame(frame);
 
-    // First verse ~2.5s after boot, then cycle
-    setTimeout(() => { spawnVerse(); scheduleNextVerse(); }, 2400);
+    // First verses fire quickly so the ambient feels alive from the start.
+    // Start with a bold verse so the user notices immediately.
+    setTimeout(() => {
+      spawnVerse({ tier: "bold" });
+      setTimeout(() => spawnVerse({ tier: "medium" }), 400);
+      setTimeout(() => spawnVerse({ tier: "faded" }), 700);
+      scheduleNextVerse();
+    }, 900);
 
     // Pause when tab hidden
     document.addEventListener("visibilitychange", () => {
