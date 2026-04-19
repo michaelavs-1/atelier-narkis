@@ -1019,7 +1019,12 @@
       pointer-events: none;
     }
     .verse-ghost {
-      position: absolute;
+      /* fixed directly — so verses are pinned to the viewport itself
+         and don't scroll with content, regardless of whether #ambient-bg
+         is fixed or absolute (iOS compositor-safe) */
+      position: fixed;
+      z-index: 31;
+      pointer-events: none;
       font-family: "Frank Ruhl Libre", serif;
       font-weight: 400;
       letter-spacing: .02em;
