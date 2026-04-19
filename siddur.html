@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>הסידור · נרקיס · Atelier Narkis</title>
+  <meta name="description" content="סידור פרדס – מהדורה מוגבלת חתומה ומוקדשת. כרוך ביד, נייר כותנה, רקמת זהב." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;500&family=Assistant:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400&display=swap" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <nav class="nav-main right" aria-label="ראשית">
+      <a href="index.html">הבית</a>
+      <a href="siddur.html" class="active">הסידור</a>
+      <a href="story.html">הסיפור</a>
+    </nav>
+    <div class="wordmark">
+      נ ר ק י ס
+      <small>Atelier · Est. MMXXVI</small>
+    </div>
+    <nav class="nav-main left" aria-label="פעולות">
+      <a href="story.html#reserve">לשריון עותק</a>
+    </nav>
+  </header>
+
+  <!-- SIDDUR HERO: split text + object -->
+  <section class="siddur-hero">
+    <div class="wrap">
+      <div class="siddur-hero-grid">
+        <div class="siddur-hero-text reveal">
+          <span class="eyebrow solo">המהדורה הראשונה · First Edition</span>
+          <h1>
+            סידור פַּרְדֵּס
+            <em>siddur pardes · signed</em>
+          </h1>
+          <p class="lede">
+            סידור תפילה במהדורה מוגבלת של 360 עותקים. כל עותק ממוספר, חתום ביד, ונושא הקדשה אישית. נייר כותנה באפור־אפר, כריכת עור חלק בשחור עמוק, רקמת זהב 22 קראט בשדרה.
+          </p>
+          <div class="hero-actions">
+            <a class="btn" href="#hakdasha">עיצוב ההקדשה</a>
+            <a class="btn-ghost" href="#specs">מפרט</a>
+          </div>
+        </div>
+
+        <div class="book-mount reveal">
+          <svg viewBox="0 0 420 560" xmlns="http://www.w3.org/2000/svg" aria-label="Siddur Pardes">
+            <defs>
+              <linearGradient id="cover" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#1a1510" />
+                <stop offset="55%" stop-color="#0c0906" />
+                <stop offset="100%" stop-color="#050302" />
+              </linearGradient>
+              <linearGradient id="spine" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#2a2218" />
+                <stop offset="50%" stop-color="#15100a" />
+                <stop offset="100%" stop-color="#2a2218" />
+              </linearGradient>
+              <linearGradient id="gold-ink" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#e9d69a" />
+                <stop offset="55%" stop-color="#c9a96a" />
+                <stop offset="100%" stop-color="#8a6d2c" />
+              </linearGradient>
+              <linearGradient id="edge" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#c9a96a" stop-opacity="0" />
+                <stop offset="30%" stop-color="#c9a96a" stop-opacity=".85" />
+                <stop offset="70%" stop-color="#e9d69a" stop-opacity=".95" />
+                <stop offset="100%" stop-color="#c9a96a" stop-opacity="0" />
+              </linearGradient>
+              <filter id="soft-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="1.6" />
+              </filter>
+              <pattern id="leather" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
+                <rect width="6" height="6" fill="#0b0806" />
+                <circle cx="2" cy="2" r=".5" fill="#1a1510" opacity=".4" />
+                <circle cx="4" cy="4" r=".4" fill="#1a1510" opacity=".3" />
+              </pattern>
+            </defs>
+
+            <!-- ambient shadow under book -->
+            <ellipse cx="210" cy="540" rx="170" ry="14" fill="#000" opacity=".55" />
+
+            <!-- book body -->
+            <g>
+              <!-- back cover glimpse -->
+              <rect x="32" y="38" width="356" height="494" rx="3" fill="#0a0805" />
+
+              <!-- spine -->
+              <rect x="32" y="38" width="18" height="494" fill="url(#spine)" />
+              <rect x="50" y="38" width="1" height="494" fill="#c9a96a" opacity=".25" />
+
+              <!-- main front cover -->
+              <rect x="50" y="30" width="338" height="500" rx="2" fill="url(#cover)" />
+              <rect x="50" y="30" width="338" height="500" rx="2" fill="url(#leather)" opacity=".6" />
+              <rect x="50" y="30" width="338" height="500" rx="2" fill="none" stroke="#c9a96a" stroke-opacity=".12" stroke-width="1" />
+
+              <!-- gold page edge -->
+              <rect x="386" y="36" width="6" height="488" fill="url(#edge)" opacity=".7" />
+
+              <!-- inner gold frame -->
+              <rect x="78" y="66" width="280" height="428" fill="none" stroke="url(#gold-ink)" stroke-width="0.8" opacity=".8" />
+              <rect x="84" y="72" width="268" height="416" fill="none" stroke="url(#gold-ink)" stroke-width="0.4" opacity=".55" />
+
+              <!-- four corner ornaments (kabbalistic dots) -->
+              <g fill="url(#gold-ink)" opacity=".85">
+                <circle cx="78" cy="66" r="2.5" />
+                <circle cx="358" cy="66" r="2.5" />
+                <circle cx="78" cy="494" r="2.5" />
+                <circle cx="358" cy="494" r="2.5" />
+              </g>
+
+              <!-- central monogram: נ -->
+              <g transform="translate(219 230)">
+                <circle r="58" fill="none" stroke="url(#gold-ink)" stroke-width=".8" opacity=".85" />
+                <circle r="48" fill="none" stroke="url(#gold-ink)" stroke-width=".4" opacity=".45" />
+                <text x="0" y="22" text-anchor="middle" font-family="Frank Ruhl Libre, serif" font-weight="400" font-size="74" fill="url(#gold-ink)">נ</text>
+              </g>
+
+              <!-- wordmark "נרקיס" -->
+              <text x="219" y="340" text-anchor="middle" font-family="Frank Ruhl Libre, serif" font-weight="300" font-size="22" letter-spacing="14" fill="url(#gold-ink)">נרקיס</text>
+
+              <!-- divider -->
+              <line x1="158" y1="358" x2="280" y2="358" stroke="url(#gold-ink)" stroke-width=".8" opacity=".65" />
+
+              <!-- PARDES tagline -->
+              <text x="219" y="380" text-anchor="middle" font-family="Cormorant Garamond, serif" font-style="italic" font-size="13" letter-spacing="6" fill="#c9a96a" opacity=".75">PARDES · MMXXVI</text>
+
+              <!-- lower ornament -->
+              <text x="219" y="460" text-anchor="middle" font-family="Frank Ruhl Libre, serif" font-size="14" letter-spacing="10" fill="url(#gold-ink)" opacity=".6">· ✦ ·</text>
+
+              <!-- edition number placeholder -->
+              <text x="219" y="480" text-anchor="middle" font-family="Cormorant Garamond, serif" font-style="italic" font-size="10" letter-spacing="4" fill="#c9a96a" opacity=".55">No 001 / 360</text>
+
+              <!-- subtle highlight on front edge -->
+              <rect x="50" y="30" width="338" height="2" fill="#fff" opacity=".04" />
+              <rect x="50" y="30" width="2" height="500" fill="#fff" opacity=".04" />
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPECS -->
+  <section class="specs" id="specs">
+    <div class="wrap">
+      <div class="specs-grid">
+        <div class="spec reveal">
+          <span class="label">כריכה · Binding</span>
+          <span class="value">עור חלק שחור</span>
+          <span class="hint">מעובד ביד אצל האטליה של דוד כתר בירושלים</span>
+        </div>
+        <div class="spec reveal">
+          <span class="label">נייר · Paper</span>
+          <span class="value">כותנה אפור־אפר</span>
+          <span class="hint">נייר כותנה איטלקי 120 גרם · עמיד ל־200 שנה</span>
+        </div>
+        <div class="spec reveal">
+          <span class="label">פרטי זהב · Gilding</span>
+          <span class="value">רקמת זהב 22 קראט</span>
+          <span class="hint">רקומה בחוט זהב אמיתי בשדרה ובמונוגרם</span>
+        </div>
+        <div class="spec reveal">
+          <span class="label">מהדורה · Edition</span>
+          <span class="value">360 עותקים ממוספרים</span>
+          <span class="hint">כל עותק חתום ומספר בכתב יד · מחיר מ־₪1,280</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HAKDASHA CONFIGURATOR -->
+  <section class="hakdasha" id="hakdasha">
+    <div class="wrap">
+      <div class="hakdasha-grid">
+        <div class="reveal">
+          <div class="preview-card" aria-live="polite">
+            <div class="kicker">Hakdasha · Personal Dedication</div>
+            <div class="body">
+              <div class="dedication" id="dedOut">לַיְלָה וּבֹקֶר וְצָהֳרַיִם / אָשִׂיחָה וְאֶהֱמֶה וְיִשְׁמַע קוֹלִי</div>
+              <div class="ornament">· ✦ ·</div>
+              <div class="owner placeholder" id="ownerOut">שמך כאן</div>
+            </div>
+            <div class="foot">עותק מס' 001 / 360 · חתום ביד נרקיס</div>
+          </div>
+        </div>
+
+        <div class="hakdasha-form reveal">
+          <span class="eyebrow solo">עיצוב ההקדשה · Personalise</span>
+          <h2 class="display-he" style="font-size: clamp(36px,4.6vw,64px); margin: 0;">
+            כל עותק <span class="display-lt">נושא את שמך</span>
+          </h2>
+          <p style="color: var(--paper); font-size: 16px; line-height: 1.8; margin: 0;">
+            ההקדשה מודפסת באות מיוחדת בעמוד ההקדשה של הסידור. הזינו את הפרטים — ההקדשה משתקפת מייד בהדמיה לצדכם.
+          </p>
+
+          <div class="field">
+            <label for="ownerInput">לכבוד · Dedicated To</label>
+            <input id="ownerInput" type="text" placeholder="שם מקבל הסידור" autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <label for="dedInput">ההקדשה · Inscription</label>
+            <textarea id="dedInput" placeholder="פסוק, שורה משיר, איחול אישי — עד 120 תווים" maxlength="140"></textarea>
+          </div>
+
+          <div>
+            <a class="btn" href="story.html#reserve">המשיכי לשריון</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <div class="foot-inner">
+      <div class="foot-links start">
+        <a href="index.html">הבית</a>
+        <a href="story.html">הסיפור</a>
+      </div>
+      <div class="mark">נרקיס · Atelier</div>
+      <div class="foot-links">
+        <a href="mailto:atelier@narkis.co.il">atelier@narkis.co.il</a>
+        <a href="story.html#reserve">שריון עותק</a>
+      </div>
+    </div>
+    <div class="credits">
+      © MMXXVI Atelier Narkis · כל הזכויות שמורות · צילום: עידן מירב, באדיבות האמנית
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
