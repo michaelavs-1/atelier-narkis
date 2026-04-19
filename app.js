@@ -218,12 +218,15 @@
     });
   }
 
-  // ---------- Ambient gold threads ----------
-  // Continuous weaving gold threads on a fixed canvas behind the site.
-  // Threads are thin sinusoidal curves that drift across the viewport,
-  // some horizontal (warp), some vertical (weft), giving a woven feel.
-  (function initThreadBg() {
+  // ---------- Ambient gold threads + ornamental figures + verses ----------
+  // A single canvas draws two layers:
+  //   1) Drifting sinusoidal gold threads (the "warp/weft")
+  //   2) Ornamental thread-figures that fade in, breathe, and fade out
+  //      (Magen David, rosette, spiral, scroll flourish)
+  // In parallel, a DOM layer types out Hebrew pesukim and fades them.
+  (function initAmbientBg() {
     const canvas = document.getElementById("thread-bg");
+    const versesLayer = document.getElementById("verses-layer");
     if (!canvas) return;
     const ctx = canvas.getContext("2d", { alpha: true });
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -241,55 +244,44 @@
     resize();
     window.addEventListener("resize", resize);
 
-    // Palette: warm gold tones, deliberately muted so the threads feel
-    // like candlelight catching filigree, not neon.
+    // ---- Palette ----
     const GOLDS = [
-      "rgba(201,169,106,",   // primary gold
-      "rgba(224,194,128,",   // light gold
+      "rgba(201,169,106,",   // primary
+      "rgba(224,194,128,",   // light
       "rgba(255,220,160,",   // pale highlight
-      "rgba(168,134,74,"     // deep antique gold
+      "rgba(168,134,74,"     // antique
     ];
 
-    // Build a thread: a long sinusoidal curve, either horizontal or vertical.
+    // ---- Ambient drifting threads ----
     function makeThread(i, count) {
       const orient = Math.random() < 0.55 ? "h" : "v";
       const color = GOLDS[Math.floor(Math.random() * GOLDS.length)];
-      const alphaBase = 0.22 + Math.random() * 0.28;
-      const widthPx = 0.55 + Math.random() * 1.0;
-      // Stagger phase so threads don't move in lockstep
+      // Bolder than before
+      const alphaBase = 0.34 + Math.random() * 0.34;
+      const widthPx = 0.7 + Math.random() * 1.3;
       const phase = Math.random() * Math.PI * 2;
-      // Travel speed in px/sec; slow — we want meditative drift.
       const speed = 8 + Math.random() * 18;
-      // Wave amplitude in px (perpendicular to travel)
-      const amp = 30 + Math.random() * 120;
-      // Wavelength
+      const amp = 30 + Math.random() * 140;
       const wavelen = 220 + Math.random() * 420;
-      // Offset across the perpendicular axis (so threads spread out)
-      const offset = (i / Math.max(count - 1, 1)) * 1.0; // 0..1
+      const offset = (i / Math.max(count - 1, 1));
       return {
         orient, color, alphaBase, widthPx,
         phase, speed, amp, wavelen, offset,
-        // Slight vertical/horizontal wobble over very long timescales
         driftSpeed: 0.00008 + Math.random() * 0.00020,
         driftPhase: Math.random() * Math.PI * 2
       };
     }
 
-    const THREAD_COUNT = reduced ? 8 : 18;
+    const THREAD_COUNT = reduced ? 10 : 22;
     let threads = Array.from({ length: THREAD_COUNT }, (_, i) => makeThread(i, THREAD_COUNT));
 
-    // Rebuild threads on resize so their spread stays nicely distributed
     window.addEventListener("resize", () => {
       threads = Array.from({ length: THREAD_COUNT }, (_, i) => makeThread(i, THREAD_COUNT));
     });
 
-    let t0 = performance.now();
-
     function drawThread(th, now) {
-      const elapsed = (now - t0) / 1000; // seconds
+      const elapsed = (now - t0) / 1000;
       const travel = elapsed * th.speed;
-
-      // Slow drift of the center line (makes the weave feel alive)
       const drift = Math.sin(now * th.driftSpeed + th.driftPhase) * 60;
 
       ctx.beginPath();
@@ -298,60 +290,345 @@
       ctx.lineWidth = th.widthPx;
 
       if (th.orient === "h") {
-        // Horizontal thread drifting rightward, wavering up/down
         const baseY = th.offset * H + drift;
-        const step = 8;
-        // Start well off-screen left so we never see the beginning
-        for (let x = -80; x <= W + 80; x += step) {
+        for (let x = -80; x <= W + 80; x += 8) {
           const y = baseY + Math.sin((x + travel) / th.wavelen * Math.PI * 2 + th.phase) * th.amp;
-          if (x === -80) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
+          if (x === -80) ctx.moveTo(x, y); else ctx.lineTo(x, y);
         }
       } else {
-        // Vertical thread drifting downward, wavering left/right
         const baseX = th.offset * W + drift;
-        const step = 8;
-        for (let y = -80; y <= H + 80; y += step) {
+        for (let y = -80; y <= H + 80; y += 8) {
           const x = baseX + Math.sin((y + travel) / th.wavelen * Math.PI * 2 + th.phase) * th.amp;
-          if (y === -80) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
+          if (y === -80) ctx.moveTo(x, y); else ctx.lineTo(x, y);
         }
       }
 
-      // Soft core stroke
       ctx.strokeStyle = th.color + th.alphaBase.toFixed(3) + ")";
       ctx.stroke();
-
-      // Very faint wider halo to suggest gold shimmer
+      // Halo
       ctx.lineWidth = th.widthPx * 3.5;
-      ctx.strokeStyle = th.color + (th.alphaBase * 0.18).toFixed(3) + ")";
+      ctx.strokeStyle = th.color + (th.alphaBase * 0.2).toFixed(3) + ")";
       ctx.stroke();
     }
 
+    // ---- Ornamental figures (thin-thread shapes) ----
+    // Each figure: type, cx, cy, radius, rotation, color, born, lifetime.
+    // Lifetime phases: fade-in (2s), hold (6–10s), fade-out (3s).
+    const FIGURE_TYPES = ["magen", "rosette", "spiral", "flourish"];
+    const figures = [];
+    const MAX_FIGURES = reduced ? 1 : 3;
+
+    function spawnFigure(now) {
+      const type = FIGURE_TYPES[Math.floor(Math.random() * FIGURE_TYPES.length)];
+      // Prefer edges/corners to not collide with main text
+      const margin = 120;
+      const edge = Math.random();
+      let cx, cy;
+      if (edge < 0.3) { // left strip
+        cx = margin + Math.random() * (W * 0.28);
+        cy = margin + Math.random() * (H - 2 * margin);
+      } else if (edge < 0.6) { // right strip
+        cx = W - margin - Math.random() * (W * 0.28);
+        cy = margin + Math.random() * (H - 2 * margin);
+      } else if (edge < 0.8) { // top strip
+        cx = margin + Math.random() * (W - 2 * margin);
+        cy = margin + Math.random() * (H * 0.22);
+      } else { // bottom strip
+        cx = margin + Math.random() * (W - 2 * margin);
+        cy = H - margin - Math.random() * (H * 0.22);
+      }
+      const radius = 60 + Math.random() * 90;
+      const rotation = Math.random() * Math.PI * 2;
+      const color = GOLDS[Math.floor(Math.random() * GOLDS.length)];
+      const lifetime = 11000 + Math.random() * 6000;
+      figures.push({
+        type, cx, cy, radius, rotation,
+        rotSpeed: (Math.random() - 0.5) * 0.0003,
+        color, born: now, lifetime,
+        seed: Math.random()
+      });
+    }
+
+    // Draw a Magen David (two overlapping triangles) as a single continuous path
+    function drawMagen(f, alpha, now) {
+      const r = f.radius;
+      const rot = f.rotation + (now - f.born) * f.rotSpeed;
+      ctx.save();
+      ctx.translate(f.cx, f.cy);
+      ctx.rotate(rot);
+      ctx.lineWidth = 0.8;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = f.color + (alpha * 0.95).toFixed(3) + ")";
+      // Triangle 1 (pointing up)
+      ctx.beginPath();
+      for (let i = 0; i <= 3; i++) {
+        const a = -Math.PI / 2 + i * (Math.PI * 2 / 3);
+        const x = Math.cos(a) * r, y = Math.sin(a) * r;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      // Triangle 2 (pointing down)
+      ctx.beginPath();
+      for (let i = 0; i <= 3; i++) {
+        const a = Math.PI / 2 + i * (Math.PI * 2 / 3);
+        const x = Math.cos(a) * r, y = Math.sin(a) * r;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      // Inner hexagon (subtle)
+      ctx.beginPath();
+      const ri = r * 0.5;
+      for (let i = 0; i <= 6; i++) {
+        const a = i * Math.PI / 3;
+        const x = Math.cos(a) * ri, y = Math.sin(a) * ri;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = f.color + (alpha * 0.4).toFixed(3) + ")";
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Draw a rosette: 8 curved petals radiating from center
+    function drawRosette(f, alpha, now) {
+      const r = f.radius;
+      const rot = f.rotation + (now - f.born) * f.rotSpeed;
+      ctx.save();
+      ctx.translate(f.cx, f.cy);
+      ctx.rotate(rot);
+      ctx.lineWidth = 0.8;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = f.color + (alpha * 0.9).toFixed(3) + ")";
+      const petals = 8;
+      for (let i = 0; i < petals; i++) {
+        const a = i * Math.PI * 2 / petals;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        // Quadratic curve out and back — lobed petal
+        const ox = Math.cos(a) * r;
+        const oy = Math.sin(a) * r;
+        const px = Math.cos(a + 0.5) * r * 0.6;
+        const py = Math.sin(a + 0.5) * r * 0.6;
+        const px2 = Math.cos(a - 0.5) * r * 0.6;
+        const py2 = Math.sin(a - 0.5) * r * 0.6;
+        ctx.quadraticCurveTo(px, py, ox, oy);
+        ctx.quadraticCurveTo(px2, py2, 0, 0);
+        ctx.stroke();
+      }
+      // Center circle
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 0.14, 0, Math.PI * 2);
+      ctx.strokeStyle = f.color + (alpha * 0.7).toFixed(3) + ")";
+      ctx.stroke();
+      // Outer ring
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 1.05, 0, Math.PI * 2);
+      ctx.strokeStyle = f.color + (alpha * 0.35).toFixed(3) + ")";
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Archimedean spiral, 3 turns
+    function drawSpiral(f, alpha, now) {
+      const r = f.radius;
+      const rot = f.rotation + (now - f.born) * f.rotSpeed * 2;
+      ctx.save();
+      ctx.translate(f.cx, f.cy);
+      ctx.rotate(rot);
+      ctx.lineWidth = 0.9;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = f.color + (alpha * 0.9).toFixed(3) + ")";
+      ctx.beginPath();
+      const turns = 3;
+      const steps = 200;
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        const a = t * turns * Math.PI * 2;
+        const rr = t * r;
+        const x = Math.cos(a) * rr;
+        const y = Math.sin(a) * rr;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Scroll flourish: S-curve with two decorative loops
+    function drawFlourish(f, alpha, now) {
+      const r = f.radius;
+      const rot = f.rotation + (now - f.born) * f.rotSpeed;
+      ctx.save();
+      ctx.translate(f.cx, f.cy);
+      ctx.rotate(rot);
+      ctx.lineWidth = 0.9;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = f.color + (alpha * 0.9).toFixed(3) + ")";
+      // Main S-curve
+      ctx.beginPath();
+      ctx.moveTo(-r, 0);
+      ctx.bezierCurveTo(-r * 0.5, -r * 0.8, r * 0.5, r * 0.8, r, 0);
+      ctx.stroke();
+      // Left loop
+      ctx.beginPath();
+      ctx.arc(-r * 0.85, -r * 0.1, r * 0.22, 0, Math.PI * 2);
+      ctx.stroke();
+      // Right loop
+      ctx.beginPath();
+      ctx.arc(r * 0.85, r * 0.1, r * 0.22, 0, Math.PI * 2);
+      ctx.stroke();
+      // Accent crosses near loops
+      ctx.strokeStyle = f.color + (alpha * 0.5).toFixed(3) + ")";
+      ctx.beginPath();
+      ctx.moveTo(-r * 0.85 - 4, -r * 0.1); ctx.lineTo(-r * 0.85 + 4, -r * 0.1);
+      ctx.moveTo(-r * 0.85, -r * 0.1 - 4); ctx.lineTo(-r * 0.85, -r * 0.1 + 4);
+      ctx.moveTo(r * 0.85 - 4, r * 0.1); ctx.lineTo(r * 0.85 + 4, r * 0.1);
+      ctx.moveTo(r * 0.85, r * 0.1 - 4); ctx.lineTo(r * 0.85, r * 0.1 + 4);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawFigure(f, now) {
+      const age = now - f.born;
+      if (age >= f.lifetime) return false;
+      const fadeIn = 2000, fadeOut = 3000;
+      let alpha = 1;
+      if (age < fadeIn) alpha = age / fadeIn;
+      else if (age > f.lifetime - fadeOut) alpha = (f.lifetime - age) / fadeOut;
+      // Soft breathing
+      alpha *= 0.75 + 0.25 * Math.sin((age / 1000) * 1.3);
+      alpha = Math.max(0, Math.min(1, alpha));
+      switch (f.type) {
+        case "magen":    drawMagen(f, alpha, now); break;
+        case "rosette":  drawRosette(f, alpha, now); break;
+        case "spiral":   drawSpiral(f, alpha, now); break;
+        case "flourish": drawFlourish(f, alpha, now); break;
+      }
+      return true;
+    }
+
+    // ---- Verses (typed-out Hebrew pesukim) ----
+    const VERSES = [
+      "שְׁמַע יִשְׂרָאֵל ה׳ אֱלֹהֵינוּ ה׳ אֶחָד",
+      "מַה טֹּבוּ אֹהָלֶיךָ יַעֲקֹב",
+      "שִׁוִּיתִי ה׳ לְנֶגְדִּי תָמִיד",
+      "הוֹדוּ לַה׳ כִּי טוֹב",
+      "בָּרְכִי נַפְשִׁי אֶת ה׳",
+      "אַשְׁרֵי יוֹשְׁבֵי בֵיתֶךָ",
+      "פִּתְחוּ לִי שַׁעֲרֵי צֶדֶק",
+      "מוֹדֶה אֲנִי לְפָנֶיךָ",
+      "כִּי עִמְּךָ מְקוֹר חַיִּים",
+      "שִׂים שָׁלוֹם טוֹבָה וּבְרָכָה",
+      "יְהִי רָצוֹן מִלְּפָנֶיךָ",
+      "מִזְמוֹר לְדָוִד ה׳ רֹעִי",
+      "הָאֵל הַגָּדוֹל הַגִּבּוֹר וְהַנּוֹרָא"
+    ];
+
+    let verseTimer = null;
+    function spawnVerse() {
+      if (!versesLayer) return;
+      // pick random verse
+      const text = VERSES[Math.floor(Math.random() * VERSES.length)];
+      // Random edge-ish position; avoid center band
+      const vw = window.innerWidth, vh = window.innerHeight;
+      const fontSize = 18 + Math.random() * 14; // 18–32px
+      const side = Math.random() < 0.5 ? "left" : "right";
+      const top = 60 + Math.random() * (vh - 200);
+      const rotation = (Math.random() - 0.5) * 10; // -5..+5 deg
+
+      const el = document.createElement("div");
+      el.className = "verse-ghost";
+      el.style.fontSize = fontSize + "px";
+      el.style.top = top + "px";
+      if (side === "left") {
+        el.style.left = (10 + Math.random() * 80) + "px";
+        el.style.right = "auto";
+      } else {
+        el.style.right = (10 + Math.random() * 80) + "px";
+        el.style.left = "auto";
+      }
+      el.style.transform = "rotate(" + rotation.toFixed(2) + "deg)";
+
+      // Wrap each char in a span so we can reveal them one by one
+      const chars = Array.from(text);
+      chars.forEach((c) => {
+        const s = document.createElement("span");
+        s.className = "char";
+        s.textContent = c;
+        el.appendChild(s);
+      });
+
+      versesLayer.appendChild(el);
+
+      // Reveal chars sequentially (like handwriting)
+      const perChar = 90 + Math.random() * 60;
+      const charEls = el.querySelectorAll(".char");
+      charEls.forEach((c, i) => {
+        setTimeout(() => c.classList.add("shown"), i * perChar);
+      });
+
+      const writeDuration = charEls.length * perChar;
+      const hold = 2600 + Math.random() * 1800;
+
+      // Fade out
+      setTimeout(() => { el.classList.add("fading"); }, writeDuration + hold);
+      // Remove
+      setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, writeDuration + hold + 1600);
+    }
+
+    function scheduleNextVerse() {
+      const delay = reduced ? 8000 : (4200 + Math.random() * 3200);
+      verseTimer = setTimeout(() => {
+        spawnVerse();
+        scheduleNextVerse();
+      }, delay);
+    }
+
+    // ---- Main animation loop ----
+    let t0 = performance.now();
     let rafId = null;
     let lastFrame = 0;
     const TARGET_FPS = reduced ? 18 : 40;
     const FRAME_MS = 1000 / TARGET_FPS;
+    let lastFigureSpawn = 0;
+    const FIGURE_INTERVAL = reduced ? 9000 : 4500;
 
     function frame(now) {
       if (now - lastFrame >= FRAME_MS) {
         lastFrame = now;
         ctx.clearRect(0, 0, W, H);
+
+        // 1) Drifting threads
         for (let i = 0; i < threads.length; i++) drawThread(threads[i], now);
+
+        // 2) Ornamental figures
+        // Spawn new one periodically up to MAX_FIGURES
+        if (now - lastFigureSpawn > FIGURE_INTERVAL && figures.length < MAX_FIGURES) {
+          spawnFigure(now);
+          lastFigureSpawn = now;
+        }
+        for (let i = figures.length - 1; i >= 0; i--) {
+          const alive = drawFigure(figures[i], now);
+          if (!alive) figures.splice(i, 1);
+        }
       }
       rafId = requestAnimationFrame(frame);
     }
     rafId = requestAnimationFrame(frame);
 
-    // Pause when tab hidden to save CPU
+    // First verse ~2.5s after boot, then cycle
+    setTimeout(() => { spawnVerse(); scheduleNextVerse(); }, 2400);
+
+    // Pause when tab hidden
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         if (rafId) cancelAnimationFrame(rafId);
         rafId = null;
+        if (verseTimer) { clearTimeout(verseTimer); verseTimer = null; }
       } else if (!rafId) {
         t0 = performance.now();
         lastFrame = 0;
         rafId = requestAnimationFrame(frame);
+        scheduleNextVerse();
       }
     });
   })();

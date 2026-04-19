@@ -969,33 +969,79 @@
     }
     .topbar { animation: topbarIn 1s cubic-bezier(.22,.7,.24,1) both; }
 
-    /* ============ AMBIENT GOLD THREADS ============ */
-    /* Fixed full-viewport canvas for continuously weaving gold threads.
-       Sits behind everything, screen-blends so it glows on dark bg,
-       pointer-events:none so it never blocks interaction. */
-    #thread-bg {
+    /* ============ AMBIENT BACKGROUND LAYER ============ */
+    /* Single fixed container hosting:
+       - #thread-bg  : canvas with weaving gold threads + ornamental figures
+       - #verses-layer : Hebrew pesukim that type out and fade
+       All sits behind content but above body bg. Screen-blends for glow. */
+    #ambient-bg {
       position: fixed;
       inset: 0;
       width: 100vw;
       height: 100vh;
       pointer-events: none;
       z-index: 0;
+      overflow: hidden;
+    }
+    #thread-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
       mix-blend-mode: screen;
-      opacity: .95;
+      opacity: 1;
       display: block;
     }
-    /* Keep all site content above the thread canvas */
-    body > *:not(#thread-bg) { position: relative; z-index: 1; }
-    /* Topbar stays on top */
+    #verses-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    /* Individual ghost verse: gold, serif, slightly italicized Hebrew */
+    .verse-ghost {
+      position: absolute;
+      color: rgba(201, 169, 106, .0); /* per-char opacity set via JS */
+      font-family: "Frank Ruhl Libre", serif;
+      font-weight: 400;
+      letter-spacing: .02em;
+      white-space: nowrap;
+      direction: rtl;
+      text-align: right;
+      mix-blend-mode: screen;
+      text-shadow: 0 0 10px rgba(201, 169, 106, .35);
+      transition: opacity 1.4s ease;
+      opacity: 1;
+      will-change: opacity, transform;
+    }
+    .verse-ghost .char {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(4px);
+      color: rgba(224, 194, 128, .95);
+      transition: opacity .35s ease, transform .5s ease;
+    }
+    .verse-ghost .char.shown { opacity: 1; transform: translateY(0); }
+    .verse-ghost.fading { opacity: 0; }
+
+    /* Keep all site content above ambient bg */
+    body > *:not(#ambient-bg) { position: relative; z-index: 1; }
     .topbar { z-index: 50; }
-    /* Honor reduced motion: fade canvas but don't hide entirely */
+
+    /* Honor reduced motion: still show threads, but dimmed */
     @media (prefers-reduced-motion: reduce) {
-      #thread-bg { opacity: .35; }
+      #thread-bg { opacity: .5; }
+      .verse-ghost { transition: none; }
+      .verse-ghost .char { transition: opacity .1s, transform .1s; }
     }
   </style>
 </head>
 <body>
-  <canvas id="thread-bg" aria-hidden="true"></canvas>
+  <div id="ambient-bg" aria-hidden="true">
+    <canvas id="thread-bg"></canvas>
+    <div id="verses-layer"></div>
+  </div>
   <header class="topbar">
     <nav class="nav-main right" aria-label="main">
       <a href="#home" data-nav="home" class="active">
