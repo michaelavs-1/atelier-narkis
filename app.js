@@ -256,9 +256,9 @@
     function makeThread(i, count) {
       const orient = Math.random() < 0.55 ? "h" : "v";
       const color = GOLDS[Math.floor(Math.random() * GOLDS.length)];
-      // Bolder than before
-      const alphaBase = 0.34 + Math.random() * 0.34;
-      const widthPx = 0.7 + Math.random() * 1.3;
+      // Bolder than the original subtle pass, but dimmed via container opacity
+      const alphaBase = 0.30 + Math.random() * 0.30;
+      const widthPx = 0.7 + Math.random() * 1.2;
       const phase = Math.random() * Math.PI * 2;
       const speed = 8 + Math.random() * 18;
       const amp = 30 + Math.random() * 140;
@@ -272,7 +272,7 @@
       };
     }
 
-    const THREAD_COUNT = reduced ? 10 : 22;
+    const THREAD_COUNT = reduced ? 8 : 16;
     let threads = Array.from({ length: THREAD_COUNT }, (_, i) => makeThread(i, THREAD_COUNT));
 
     window.addEventListener("resize", () => {
