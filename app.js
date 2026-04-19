@@ -81,11 +81,14 @@
   // ---------- Topbar scrolled state + hero parallax ----------
   const topbar = document.querySelector(".topbar");
   const heroBg = document.querySelector(".hero-bg");
+  // Disable parallax on mobile — iOS URL-bar show/hide during scroll
+  // combined with a translate transform causes visible image jumps.
+  const parallaxEnabled = !window.matchMedia("(max-width: 768px), (pointer: coarse)").matches;
   let lastY = -1;
   let ticking = false;
   function onScrollRaf() {
     if (topbar) topbar.classList.toggle("scrolled", window.scrollY > 24);
-    if (heroBg) {
+    if (heroBg && parallaxEnabled) {
       const y = Math.min(window.scrollY * 0.22, 140);
       heroBg.style.setProperty("--hero-py", y + "px");
     }

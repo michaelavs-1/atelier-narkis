@@ -230,7 +230,11 @@ img { display: block; max-width: 100%; height: auto; }
 /* ---------- HERO ---------- */
 .hero {
   position: relative;
+  /* 100svh (smallest viewport height) is stable on iOS — it's based on
+     the minimum viewport and does NOT resize when the URL bar shows/hides.
+     Fallback to 100vh for older browsers. */
   min-height: 100vh;
+  min-height: 100svh;
   display: flex;
   align-items: center;
   justify-content: center;

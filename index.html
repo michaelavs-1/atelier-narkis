@@ -795,17 +795,28 @@
       transition: transform .18s linear;
       will-change: transform, background-position;
     }
-    /* On mobile the container is very tall; cover instead of 115% so the
-       image fills the full hero without tiling. */
+    /* On mobile the container is portrait-tall; using `cover` locks the
+       image to fully cover the viewport. We then Ken-Burns purely via
+       background-position (NOT size) so the image NEVER resizes during
+       animation. Also: no parallax transform on mobile — just a static
+       image with slow position drift. This eliminates the "image
+       suddenly shrinking on scroll" bug on iOS. */
     @media (max-width: 768px), (pointer: coarse) {
       .hero-bg {
         background-size: cover !important;
-        background-position: center 18% !important;
+        background-position: 50% 18% !important;
+        /* Disable parallax translate on mobile — iOS URL-bar changes
+           + translate caused visible jumps. */
+        transform: none !important;
+        animation: kenburns-mobile 46s ease-in-out infinite;
+        will-change: background-position;
       }
-      @keyframes kenburns {
-        0%   { background-size: cover;      background-position: 50% 18%; }
-        50%  { background-size: 115% auto;  background-position: 48% 28%; }
-        100% { background-size: cover;      background-position: 50% 18%; }
+      /* Mobile Ken-Burns: ONLY position drifts; size is constant cover.
+         Image never rescales → no "shrinking" effect on scroll. */
+      @keyframes kenburns-mobile {
+        0%   { background-position: 50% 18%; }
+        50%  { background-position: 46% 32%; }
+        100% { background-position: 50% 18%; }
       }
     }
 
