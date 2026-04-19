@@ -1027,20 +1027,22 @@
     .verse-ghost .char.shown { opacity: 1; transform: translateY(0); }
     .verse-ghost .char.gone  { opacity: 0; transform: translateY(-3px); }
 
-    /* Opacity tiers — the ambient flow has bold, medium, and ghost verses */
+    /* Opacity tiers — the ambient flow has bold, medium, and ghost verses.
+       `.shown:not(.gone)` ensures .gone still fades to zero even though
+       tier-class selectors have higher specificity. */
     .verse-ghost.tier-bold .char {
       color: rgba(255, 220, 160, 1);
       font-weight: 500;
     }
-    .verse-ghost.tier-bold .char.shown { opacity: 1; }
+    .verse-ghost.tier-bold .char.shown:not(.gone) { opacity: 1; }
     .verse-ghost.tier-medium .char {
       color: rgba(224, 194, 128, .9);
     }
-    .verse-ghost.tier-medium .char.shown { opacity: .75; }
+    .verse-ghost.tier-medium .char.shown:not(.gone) { opacity: .75; }
     .verse-ghost.tier-faded .char {
       color: rgba(201, 169, 106, .7);
     }
-    .verse-ghost.tier-faded .char.shown { opacity: .35; }
+    .verse-ghost.tier-faded .char.shown:not(.gone) { opacity: .35; }
     .verse-ghost.tier-bold   { text-shadow: 0 0 12px rgba(255,220,160,.5), 0 0 20px rgba(201,169,106,.3); }
     .verse-ghost.tier-medium { text-shadow: 0 0 8px rgba(201,169,106,.35); }
     .verse-ghost.tier-faded  { text-shadow: 0 0 4px rgba(201,169,106,.15); }
