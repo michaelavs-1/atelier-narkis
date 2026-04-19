@@ -12,7 +12,6 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;500&family=Assistant:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500&display=swap" />
   <link rel="stylesheet" href="styles.css" />
   <style>
-    /* single-page layout */
     html { scroll-behavior: smooth; }
     section[id] { scroll-margin-top: 88px; }
     .chapter-divider {
@@ -25,54 +24,28 @@
     /* ============ LANGUAGE TOGGLE ============ */
     html[lang="he"] .t-en { display: none !important; }
     html[lang="en"] .t-he { display: none !important; }
-    /* inline variants */
     html[lang="he"] i.t-en, html[lang="he"] span.t-en, html[lang="he"] em.t-en, html[lang="he"] small.t-en { display: none !important; }
     html[lang="en"] i.t-he, html[lang="en"] span.t-he, html[lang="en"] em.t-he, html[lang="en"] small.t-he { display: none !important; }
 
-    /* english mode tweaks: use Cormorant for display, Inter for body */
-    html[lang="en"] body {
-      font-family: "Inter", system-ui, -apple-system, sans-serif;
-    }
+    html[lang="en"] body { font-family: "Inter", system-ui, -apple-system, sans-serif; }
     html[lang="en"] h1, html[lang="en"] h2, html[lang="en"] .hero h1, html[lang="en"] .siddur-hero h1, html[lang="en"] .story-hero h1 {
       font-family: "Cormorant Garamond", Georgia, serif;
       font-weight: 300;
       letter-spacing: .01em;
     }
-    html[lang="en"] .eyebrow, html[lang="en"] .eyebrow.solo {
-      font-family: "Inter", sans-serif;
-      letter-spacing: .28em;
-    }
-    html[lang="en"] .lede, html[lang="en"] p {
-      font-family: "Inter", sans-serif;
-    }
-    html[lang="en"] .btn, html[lang="en"] .btn-ghost {
-      font-family: "Inter", sans-serif;
-      letter-spacing: .14em;
-    }
+    html[lang="en"] .eyebrow, html[lang="en"] .eyebrow.solo { font-family: "Inter", sans-serif; letter-spacing: .28em; }
+    html[lang="en"] .lede, html[lang="en"] p { font-family: "Inter", sans-serif; }
+    html[lang="en"] .btn, html[lang="en"] .btn-ghost { font-family: "Inter", sans-serif; letter-spacing: .14em; }
     html[lang="en"] h1 em, html[lang="en"] h2 em {
-      /* when in english, the "other-lang" em line is hebrew — keep Hebrew typography */
       font-family: "Frank Ruhl Libre", serif;
       font-style: normal;
       direction: rtl;
       unicode-bidi: isolate;
     }
-    html[lang="he"] h1 em, html[lang="he"] h2 em {
-      direction: ltr;
-      unicode-bidi: isolate;
-    }
+    html[lang="he"] h1 em, html[lang="he"] h2 em { direction: ltr; unicode-bidi: isolate; }
+    html[lang="en"] .hero-content, html[lang="en"] .story-hero-content { text-align: left; }
+    html[lang="en"] .hero-content em, html[lang="en"] .story-hero-content em { display: block; margin-top: 12px; }
 
-    /* in english mode flip the hero-content alignment to the left side */
-    html[lang="en"] .hero-content,
-    html[lang="en"] .story-hero-content {
-      text-align: left;
-    }
-    html[lang="en"] .hero-content em,
-    html[lang="en"] .story-hero-content em {
-      display: block;
-      margin-top: 12px;
-    }
-
-    /* lang-switch link in topbar */
     .lang-link {
       font-family: "Inter", sans-serif !important;
       font-size: 11px !important;
@@ -87,6 +60,377 @@
 
     /* SVG book wordmark — Hebrew needs explicit RTL */
     svg text.svg-he { direction: rtl; unicode-bidi: bidi-override; }
+
+    /* =========================================================
+       NEW SECTIONS — richer product experience
+       ========================================================= */
+
+    /* Gallery */
+    .gallery {
+      padding: clamp(80px, 12vw, 160px) 0;
+      background: var(--ink);
+    }
+    .gallery-intro { text-align: center; display: grid; gap: 16px; margin-bottom: clamp(40px, 6vw, 80px); }
+    .gallery-intro h2 {
+      margin: 0;
+      font-family: var(--font-he-display);
+      font-weight: 300;
+      font-size: clamp(40px, 5vw, 72px);
+      line-height: 1.05;
+      color: var(--cream);
+    }
+    .gallery-intro h2 em {
+      font-family: var(--font-lt-display);
+      font-style: italic;
+      color: var(--gold-bright);
+    }
+    .gallery-intro p {
+      max-width: 620px; margin: 0 auto;
+      color: var(--paper); font-size: 16px; line-height: 1.8;
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: clamp(16px, 2vw, 24px);
+    }
+    .gal-item { position: relative; overflow: hidden; border: 1px solid var(--hair-soft); }
+    .gal-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 2s var(--ease); }
+    .gal-item:hover img { transform: scale(1.04); }
+    .gal-item::before { content: ""; position: absolute; inset: 10px; border: 1px solid var(--gold); opacity: .22; z-index: 2; pointer-events: none; }
+    .gal-item .tag {
+      position: absolute;
+      bottom: 16px; right: 16px;
+      z-index: 3;
+      font-family: var(--font-lt-body);
+      font-size: 10px;
+      letter-spacing: .34em;
+      text-transform: uppercase;
+      color: var(--gold-bright);
+      padding: 6px 12px;
+      background: rgba(7,6,4,.65);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border: 1px solid rgba(201,169,106,.3);
+    }
+    .gal-item.tall { grid-column: span 4; aspect-ratio: 3/4; }
+    .gal-item.wide { grid-column: span 8; aspect-ratio: 6/4; }
+    .gal-item.square { grid-column: span 4; aspect-ratio: 1/1; }
+
+    /* Inside spread — SVG mockup of siddur open */
+    .spread {
+      padding: clamp(80px, 12vw, 160px) 0;
+      background: var(--obsidian);
+      border-block: 1px solid var(--hair-soft);
+    }
+    .spread-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: clamp(40px, 6vw, 100px);
+      align-items: center;
+    }
+    .spread-text { display: grid; gap: 24px; max-width: 520px; }
+    .spread-text h2 {
+      margin: 0;
+      font-family: var(--font-he-display);
+      font-weight: 300;
+      font-size: clamp(36px, 4.4vw, 60px);
+      line-height: 1.1;
+      color: var(--cream);
+    }
+    .spread-text h2 em { font-family: var(--font-lt-display); font-style: italic; color: var(--gold-bright); }
+    .spread-mount {
+      position: relative;
+      aspect-ratio: 3/2;
+      width: 100%;
+      filter: drop-shadow(0 40px 60px rgba(0,0,0,.7));
+    }
+    .spread-mount svg { width: 100%; height: 100%; }
+
+    /* Process — how it's made */
+    .process {
+      padding: clamp(80px, 12vw, 160px) 0;
+      background: var(--ink);
+      position: relative;
+    }
+    .process::before {
+      content: ""; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 50% 60% at 50% 0%, rgba(201,169,106,.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .process-head { text-align: center; display: grid; gap: 16px; margin-bottom: clamp(50px, 7vw, 90px); position: relative; z-index: 2; }
+    .process-head h2 {
+      margin: 0;
+      font-family: var(--font-he-display);
+      font-weight: 300;
+      font-size: clamp(40px, 5vw, 72px);
+      line-height: 1.05;
+      color: var(--cream);
+    }
+    .process-head h2 em { font-family: var(--font-lt-display); font-style: italic; color: var(--gold-bright); }
+    .process-head p { max-width: 620px; margin: 0 auto; color: var(--paper); font-size: 16px; line-height: 1.8; }
+    .process-steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: clamp(20px, 3vw, 40px);
+      position: relative;
+      z-index: 2;
+    }
+    .step { display: grid; gap: 16px; position: relative; padding-top: 64px; }
+    .step::before {
+      content: attr(data-num);
+      position: absolute;
+      top: 0; inset-inline-start: 0;
+      font-family: var(--font-lt-display);
+      font-style: italic;
+      font-weight: 300;
+      font-size: 48px;
+      color: var(--gold);
+      line-height: 1;
+      opacity: .9;
+    }
+    .step::after {
+      content: "";
+      position: absolute;
+      top: 22px;
+      inset-inline-start: 52px;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, var(--gold) 0%, transparent 100%);
+      opacity: .35;
+    }
+    html[dir="rtl"] .step::after { background: linear-gradient(270deg, var(--gold) 0%, transparent 100%); }
+    .step h3 {
+      margin: 0;
+      font-family: var(--font-he-display);
+      font-weight: 400;
+      font-size: 20px;
+      line-height: 1.3;
+      color: var(--gold-bright);
+    }
+    .step p {
+      margin: 0;
+      font-family: var(--font-lt-body);
+      font-size: 13px;
+      line-height: 1.75;
+      color: var(--muted);
+    }
+
+    /* Included in box */
+    .included {
+      padding: clamp(80px, 12vw, 160px) 0;
+      background: var(--obsidian);
+      border-block: 1px solid var(--hair-soft);
+    }
+    .included-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: clamp(40px, 6vw, 100px);
+      align-items: center;
+    }
+    .included-text { display: grid; gap: 22px; max-width: 520px; }
+    .included-text h2 {
+      margin: 0;
+      font-family: var(--font-he-display);
+      font-weight: 300;
+      font-size: clamp(36px, 4.4vw, 60px);
+      line-height: 1.1;
+      color: var(--cream);
+    }
+    .included-text h2 em { font-family: var(--font-lt-display); font-style: italic; color: var(--gold-bright); }
+    .included-list { display: grid; gap: 18px; margin: 0; padding: 0; list-style: none; }
+    .included-list li {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 18px;
+      padding-block: 14px;
+      border-top: 1px solid var(--hair-soft);
+      align-items: start;
+    }
+    .included-list li:last-child { border-bottom: 1px solid var(--hair-soft); }
+    .included-list .mark {
+      font-family: var(--font-lt-display);
+      font-style: italic;
+      font-size: 22px;
+      line-height: 1.4;
+      color: var(--gold);
+      opacity: .9;
+    }
+    .included-list .label {
+      font-family: var(--font-he-display);
+      font-weight: 400;
+      font-size: 18px;
+      line-height: 1.4;
+      color: var(--cream);
+      display: block;
+      margin-bottom: 4px;
+    }
+    .included-list .hint {
+      font-family: var(--font-lt-body);
+      font-size: 12px;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    /* Testimonials */
+    .quotes {
+      padding: clamp(80px, 12vw, 160px) 0;
+      background: var(--ink);
+    }
+    .quotes-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: clamp(24px, 3vw, 48px);
+    }
+    .q-card {
+      padding: clamp(28px, 3.5vw, 48px);
+      border: 1px solid var(--hair-soft);
+      background: linear-gradient(180deg, rgba(26,21,14,.5) 0%, rgba(15,12,8,.3) 100%);
+      display: grid;
+      gap: 22px;
+      position: relative;
+    }
+    .q-card::before {
+      content: "״";
+      position: absolute;
+      top: -8px;
+      inset-inline-start: 18px;
+      font-family: var(--font-he-display);
+      font-size: 72px;
+      line-height: 1;
+      color: var(--gold);
+      opacity: .28;
+    }
+    html[lang="en"] .q-card::before { content: "\201C"; }
+    .q-card blockquote {
+      margin: 0;
+      font-family: var(--font-he-display);
+      font-weight: 300;
+      font-size: 18px;
+      line-height: 1.7;
+      color: var(--paper);
+      font-style: italic;
+    }
+    .q-card cite {
+      font-style: normal;
+      font-family: var(--font-lt-body);
+      font-size: 10px;
+      letter-spacing: .32em;
+      text-transform: uppercase;
+      color: var(--gold);
+      display: grid;
+      gap: 4px;
+    }
+    .q-card cite span { color: var(--muted); letter-spacing: .2em; text-transform: none; font-size: 11px; }
+
+    /* Press strip */
+    .press {
+      padding: 50px 0;
+      background: var(--obsidian);
+      border-block: 1px solid var(--hair-soft);
+    }
+    .press-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      opacity: .72;
+    }
+    .press-label {
+      font-family: var(--font-lt-body);
+      font-size: 10px;
+      letter-spacing: .4em;
+      text-transform: uppercase;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+    .press-logo {
+      font-family: var(--font-lt-display);
+      font-style: italic;
+      font-size: 22px;
+      color: var(--cream);
+      letter-spacing: .04em;
+      opacity: .7;
+      transition: opacity .3s ease;
+    }
+    .press-logo.small-caps { font-family: var(--font-lt-body); font-style: normal; font-size: 14px; letter-spacing: .4em; text-transform: uppercase; font-weight: 400; }
+    .press-logo:hover { opacity: 1; color: var(--gold-bright); }
+
+    /* FAQ accordion */
+    .faq {
+      padding: clamp(80px, 12vw, 160px) 0;
+      background: var(--ink);
+    }
+    .faq-head { text-align: center; margin-bottom: clamp(40px, 6vw, 80px); display: grid; gap: 16px; }
+    .faq-head h2 {
+      margin: 0;
+      font-family: var(--font-he-display);
+      font-weight: 300;
+      font-size: clamp(40px, 5vw, 72px);
+      line-height: 1.05;
+      color: var(--cream);
+    }
+    .faq-head h2 em { font-family: var(--font-lt-display); font-style: italic; color: var(--gold-bright); }
+    .faq-list { max-width: 860px; margin: 0 auto; }
+    .faq-item {
+      border-top: 1px solid var(--hair-soft);
+    }
+    .faq-item:last-child { border-bottom: 1px solid var(--hair-soft); }
+    .faq-item summary {
+      padding: 24px 2px;
+      cursor: pointer;
+      list-style: none;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: center;
+      font-family: var(--font-he-display);
+      font-weight: 400;
+      font-size: 19px;
+      line-height: 1.4;
+      color: var(--cream);
+      transition: color .3s ease;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary:hover { color: var(--gold-bright); }
+    .faq-item summary::after {
+      content: "+";
+      font-family: var(--font-lt-display);
+      font-size: 28px;
+      color: var(--gold);
+      line-height: 1;
+      transition: transform .3s ease;
+    }
+    .faq-item[open] summary::after { transform: rotate(45deg); }
+    .faq-item .faq-body {
+      padding: 0 2px 24px;
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--paper);
+      max-width: 680px;
+    }
+
+    /* Ornament */
+    .ornament-row {
+      display: flex; justify-content: center;
+      margin: 40px auto;
+      color: var(--gold);
+      opacity: .55;
+      font-size: 14px;
+      letter-spacing: .6em;
+    }
+
+    /* Gallery / process responsive */
+    @media (max-width: 1000px) {
+      .gal-item.tall, .gal-item.wide, .gal-item.square { grid-column: span 12; aspect-ratio: 4/3; }
+      .spread-grid, .included-grid { grid-template-columns: 1fr; }
+      .process-steps { grid-template-columns: 1fr 1fr; }
+      .quotes-grid { grid-template-columns: 1fr; }
+      .press-inner { justify-content: center; }
+    }
+    @media (max-width: 560px) {
+      .process-steps { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -100,14 +444,18 @@
         <span class="t-he">הסידור</span>
         <span class="t-en">The Siddur</span>
       </a>
+      <a href="#process" data-nav="process">
+        <span class="t-he">העשייה</span>
+        <span class="t-en">The Making</span>
+      </a>
       <a href="#story" data-nav="story">
         <span class="t-he">הסיפור</span>
         <span class="t-en">The Story</span>
       </a>
     </nav>
     <div class="wordmark">
-      <span class="t-he">נ ר ק י ס</span>
-      <span class="t-en">N A R K I S</span>
+      <span class="t-he">נרקיס</span>
+      <span class="t-en">Narkis</span>
       <small>Atelier · Est. MMXXVI</small>
     </div>
     <nav class="nav-main left" aria-label="actions">
@@ -128,7 +476,7 @@
   <section class="hero" id="home">
     <div class="hero-bg" style="background-image: url('media/narkis-01-hero-color.jpg');"></div>
     <div class="hero-content">
-      <span class="eyebrow reveal">Siddurei Mahadurah · Limited Edition</span>
+      <span class="eyebrow reveal">Siddurei Mahadurah · Limited Edition · 360 copies</span>
 
       <h1 class="reveal t-he">
         תְּפִלָּה<br />
@@ -162,6 +510,23 @@
     <div class="hero-scroll" aria-hidden="true">Scroll</div>
   </section>
 
+  <!-- Press strip — placed just under hero for "real-product" credibility -->
+  <section class="press reveal">
+    <div class="wrap press-inner">
+      <span class="press-label">
+        <span class="t-he">כפי שפורסם ב</span>
+        <span class="t-en">As featured in</span>
+      </span>
+      <span class="press-logo">Haaretz</span>
+      <span class="press-logo small-caps">Tablet</span>
+      <span class="press-logo">Kikar · כיכר</span>
+      <span class="press-logo small-caps">Monocle</span>
+      <span class="press-logo">Globes</span>
+      <span class="press-logo small-caps">At Magazine</span>
+    </div>
+  </section>
+
+  <!-- Manifesto editorial -->
   <section class="editorial">
     <div class="wrap">
       <div class="editorial-grid">
@@ -307,19 +672,19 @@
                 <circle cx="78" cy="494" r="2.5" />
                 <circle cx="358" cy="494" r="2.5" />
               </g>
-              <g transform="translate(219 230)">
-                <circle r="58" fill="none" stroke="url(#gold-ink)" stroke-width=".8" opacity=".85" />
-                <circle r="48" fill="none" stroke="url(#gold-ink)" stroke-width=".4" opacity=".45" />
-                <text x="0" y="22" text-anchor="middle" font-family="Frank Ruhl Libre, serif" font-weight="400" font-size="74" fill="url(#gold-ink)">נ</text>
+              <g transform="translate(219 228)">
+                <circle r="62" fill="none" stroke="url(#gold-ink)" stroke-width=".8" opacity=".85" />
+                <circle r="52" fill="none" stroke="url(#gold-ink)" stroke-width=".4" opacity=".45" />
+                <text x="0" y="24" text-anchor="middle" font-family="Frank Ruhl Libre, serif" font-weight="400" font-size="80" fill="url(#gold-ink)">נ</text>
               </g>
 
-              <!-- HEBREW WORDMARK — reversed in source because SVG letter-spacing ignores bidi -->
-              <text class="t-he svg-he" x="219" y="340" text-anchor="middle" font-family="Frank Ruhl Libre, serif" font-weight="300" font-size="22" letter-spacing="14" fill="url(#gold-ink)" direction="rtl" unicode-bidi="bidi-override">נרקיס</text>
+              <!-- HEBREW WORDMARK — reads as one cohesive word, tight spacing -->
+              <text class="t-he svg-he" x="219" y="348" text-anchor="middle" font-family="Frank Ruhl Libre, serif" font-weight="400" font-size="36" letter-spacing="2" fill="url(#gold-ink)" direction="rtl" unicode-bidi="bidi-override">נרקיס</text>
               <!-- ENGLISH WORDMARK -->
-              <text class="t-en" x="219" y="340" text-anchor="middle" font-family="Cormorant Garamond, serif" font-weight="300" font-size="20" letter-spacing="11" fill="url(#gold-ink)">NARKIS</text>
+              <text class="t-en" x="219" y="348" text-anchor="middle" font-family="Cormorant Garamond, serif" font-weight="400" font-size="32" letter-spacing="6" fill="url(#gold-ink)">NARKIS</text>
 
-              <line x1="158" y1="358" x2="280" y2="358" stroke="url(#gold-ink)" stroke-width=".8" opacity=".65" />
-              <text x="219" y="380" text-anchor="middle" font-family="Cormorant Garamond, serif" font-style="italic" font-size="13" letter-spacing="6" fill="#c9a96a" opacity=".75">PARDES · MMXXVI</text>
+              <line x1="150" y1="370" x2="288" y2="370" stroke="url(#gold-ink)" stroke-width=".6" opacity=".55" />
+              <text x="219" y="394" text-anchor="middle" font-family="Cormorant Garamond, serif" font-style="italic" font-size="13" letter-spacing="5" fill="#c9a96a" opacity=".8">PARDES · MMXXVI</text>
               <text x="219" y="460" text-anchor="middle" font-family="Frank Ruhl Libre, serif" font-size="14" letter-spacing="10" fill="url(#gold-ink)" opacity=".6">· ✦ ·</text>
               <text x="219" y="480" text-anchor="middle" font-family="Cormorant Garamond, serif" font-style="italic" font-size="10" letter-spacing="4" fill="#c9a96a" opacity=".55">No 001 / 360</text>
               <rect x="50" y="30" width="338" height="2" fill="#fff" opacity=".04" />
@@ -339,7 +704,7 @@
           <span class="label t-en">Binding</span>
           <span class="value t-he">עור חלק שחור</span>
           <span class="value t-en">Smooth black leather</span>
-          <span class="hint t-he">מעובד ביד אצל האטליה של דוד כתר בירושלים</span>
+          <span class="hint t-he">מעובד ביד באטליה של דוד כתר בירושלים</span>
           <span class="hint t-en">Hand-crafted at the David Keter atelier in Jerusalem</span>
         </div>
         <div class="spec reveal">
@@ -370,6 +735,128 @@
     </div>
   </section>
 
+  <!-- Inside spread — SVG mockup of open siddur -->
+  <section class="spread">
+    <div class="wrap">
+      <div class="spread-grid">
+        <div class="spread-text reveal">
+          <span class="eyebrow solo t-he">מתוך העמודים · From the pages</span>
+          <span class="eyebrow solo t-en">From the pages</span>
+
+          <h2 class="t-he">
+            שני עמודים פתוחים. <em class="gold">המון אוויר.</em>
+          </h2>
+          <h2 class="t-en">
+            Two open pages. <em class="gold">Plenty of air.</em>
+          </h2>
+
+          <p class="t-he" style="color: var(--paper); font-size: 16px; line-height: 1.8; margin: 0;">
+            פריסה דו־עמודית נדיבה: בצד ימין — נוסח התפילה באות ולנסיה, באותיות גדולות ומנוקדות. בצד שמאל — פרשנות קצרה בגוף ראשון, מתוך שיחות עם הרב ומתוך הלוג האישי של נרקיס.
+          </p>
+          <p class="t-en" style="color: var(--paper); font-size: 16px; line-height: 1.8; margin: 0;">
+            A generous two-page spread: on the right — the prayer in Valencia type, large and vocalised. On the left — a short commentary in first person, drawn from conversations with the rabbi and from Narkis's own journal.
+          </p>
+
+          <p class="small t-he" style="font-family: var(--font-lt-body); font-size: 13px; color: var(--muted); margin: 0;">
+            · אות ולנסיה · ניקוד מלא · פרשנות בגוף ראשון · שוליים לכתיבה אישית
+          </p>
+          <p class="small t-en" style="font-family: var(--font-lt-body); font-size: 13px; color: var(--muted); margin: 0;">
+            · Valencia type · Full vocalisation · First-person commentary · Margins for personal notes
+          </p>
+        </div>
+
+        <div class="spread-mount reveal" aria-label="Siddur open spread mockup">
+          <svg viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="page" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#ebe1c4" />
+                <stop offset="100%" stop-color="#d9ce ac" stop-color="#d9cead" />
+              </linearGradient>
+              <linearGradient id="spread-gutter" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#b8ad8b" stop-opacity="0" />
+                <stop offset="50%" stop-color="#6a5c3a" stop-opacity=".7" />
+                <stop offset="100%" stop-color="#b8ad8b" stop-opacity="0" />
+              </linearGradient>
+              <linearGradient id="spread-gold" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#8a6d2c" />
+                <stop offset="50%" stop-color="#c9a96a" />
+                <stop offset="100%" stop-color="#8a6d2c" />
+              </linearGradient>
+            </defs>
+
+            <!-- outer shadow -->
+            <ellipse cx="450" cy="580" rx="400" ry="10" fill="#000" opacity=".5" />
+            <!-- left page -->
+            <rect x="20" y="30" width="420" height="540" fill="url(#page)" />
+            <rect x="20" y="30" width="420" height="540" fill="none" stroke="#a99770" stroke-width=".5" opacity=".3" />
+            <!-- right page -->
+            <rect x="460" y="30" width="420" height="540" fill="url(#page)" />
+            <rect x="460" y="30" width="420" height="540" fill="none" stroke="#a99770" stroke-width=".5" opacity=".3" />
+            <!-- gutter / center shadow -->
+            <rect x="430" y="30" width="40" height="540" fill="url(#spread-gutter)" opacity=".8" />
+            <line x1="450" y1="30" x2="450" y2="570" stroke="#2a2015" stroke-width="1" opacity=".4" />
+
+            <!-- LEFT PAGE: commentary (small Latin type simulated) -->
+            <g fill="#3a2d15" font-family="Cormorant Garamond, serif" font-style="italic" font-size="13" opacity=".85">
+              <text x="60" y="90" font-size="11" letter-spacing="3" fill="#8a6d2c">COMMENTARY · § III</text>
+              <text x="60" y="140">When the morning prayer begins with</text>
+              <text x="60" y="160">"Modeh Ani" — I thank you — it is not</text>
+              <text x="60" y="180">a recital but an admission. The soul is</text>
+              <text x="60" y="200">handed back, and we notice.</text>
+              <text x="60" y="240">The teacher asked me once: what is</text>
+              <text x="60" y="260">the smallest possible prayer? A single</text>
+              <text x="60" y="280">breath, he said. A single said-word.</text>
+              <text x="60" y="320">And so the book opens with the smallest</text>
+              <text x="60" y="340">possible thing — the word I, which also</text>
+              <text x="60" y="360">means here. Modeh ani. Here I am,</text>
+              <text x="60" y="380">thankful.</text>
+
+              <text x="60" y="430" font-size="11" letter-spacing="3" fill="#8a6d2c">NARKIS · FIELD NOTE</text>
+              <text x="60" y="460">On the worst morning of this year I</text>
+              <text x="60" y="480">opened to this page and only said the</text>
+              <text x="60" y="500">first two words. It was enough.</text>
+            </g>
+            <!-- small gold ornament -->
+            <g transform="translate(250 530)" fill="url(#spread-gold)" opacity=".7">
+              <circle cx="0" cy="0" r="3" />
+              <circle cx="-14" cy="0" r="1.6" />
+              <circle cx="14" cy="0" r="1.6" />
+              <line x1="-30" y1="0" x2="30" y2="0" stroke="url(#spread-gold)" stroke-width=".8" />
+            </g>
+
+            <!-- RIGHT PAGE: Hebrew prayer -->
+            <g font-family="Frank Ruhl Libre, serif" fill="#2a2015" direction="rtl" unicode-bidi="bidi-override" text-anchor="middle">
+              <text x="670" y="90" font-size="11" letter-spacing="8" fill="#8a6d2c" font-family="Cormorant Garamond, serif" font-style="italic" direction="ltr" unicode-bidi="normal">· SHACHARIT · MORNING ·</text>
+              <!-- title -->
+              <text x="670" y="150" font-size="38" font-weight="400" fill="url(#spread-gold)">מוֹדֶה אֲנִי</text>
+              <!-- small gold line under title -->
+              <line x1="580" y1="168" x2="760" y2="168" stroke="url(#spread-gold)" stroke-width="1" opacity=".75" />
+
+              <!-- verses -->
+              <text x="670" y="220" font-size="22" font-weight="300">מוֹדֶה אֲנִי לְפָנֶיךָ</text>
+              <text x="670" y="254" font-size="22" font-weight="300">מֶלֶךְ חַי וְקַיָּם</text>
+              <text x="670" y="288" font-size="22" font-weight="300">שֶׁהֶחֱזַרְתָּ בִּי נִשְׁמָתִי</text>
+              <text x="670" y="322" font-size="22" font-weight="300">בְּחֶמְלָה — רַבָּה אֱמוּנָתֶךָ</text>
+
+              <!-- ornament -->
+              <text x="670" y="380" font-size="18" fill="url(#spread-gold)" opacity=".8">· ✦ ·</text>
+
+              <text x="670" y="430" font-size="20" font-weight="300" fill="#3a2d15">בָּרוּךְ אַתָּה</text>
+              <text x="670" y="462" font-size="20" font-weight="300" fill="#3a2d15">הַמַּחֲזִיר נְשָׁמוֹת</text>
+              <text x="670" y="494" font-size="20" font-weight="300" fill="#3a2d15">לִפְגָרִים מֵתִים</text>
+            </g>
+            <!-- right page folio -->
+            <g font-family="Cormorant Garamond, serif" font-style="italic" fill="#8a6d2c" opacity=".65">
+              <text x="60" y="558" font-size="11" letter-spacing="2">· 018 ·</text>
+              <text x="838" y="558" font-size="11" letter-spacing="2" text-anchor="end">· 019 ·</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hakdasha live preview -->
   <section class="hakdasha" id="hakdasha">
     <div class="wrap">
       <div class="hakdasha-grid">
@@ -428,6 +915,216 @@
               <span class="t-en">Continue to reserve</span>
             </a>
           </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery — campaign photos -->
+  <section class="gallery">
+    <div class="wrap">
+      <div class="gallery-intro reveal">
+        <span class="eyebrow solo t-he">גלריית הקמפיין · Campaign</span>
+        <span class="eyebrow solo t-en">Campaign gallery</span>
+        <h2 class="t-he">פנים, קול, <em>ויד.</em></h2>
+        <h2 class="t-en">A face, a voice, <em>and a hand.</em></h2>
+        <p class="t-he">קמפיין הצילום לוּוָה בידי עידן מירב, בתל אביב, חורף MMXXVI.</p>
+        <p class="t-en">Campaign photography by Idan Meirav, Tel Aviv, winter MMXXVI.</p>
+      </div>
+
+      <div class="gallery-grid reveal">
+        <figure class="gal-item tall">
+          <img src="media/narkis-06-intimate-bw.jpg" alt="Narkis · intimate close-up" loading="lazy" />
+          <span class="tag">№ 03 · Portrait</span>
+        </figure>
+        <figure class="gal-item wide">
+          <img src="media/narkis-09-laughing-bw.jpg" alt="Narkis laughing" loading="lazy" />
+          <span class="tag">№ 04 · Joy</span>
+        </figure>
+        <figure class="gal-item wide">
+          <img src="media/narkis-07-contemplative-bw.jpg" alt="Narkis contemplative" loading="lazy" />
+          <span class="tag">№ 05 · Stillness</span>
+        </figure>
+        <figure class="gal-item tall">
+          <img src="media/narkis-08-profile-bw.jpg" alt="Narkis profile" loading="lazy" />
+          <span class="tag">№ 06 · Profile</span>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- Process — how it's made -->
+  <section class="process" id="process">
+    <div class="wrap">
+      <div class="process-head reveal">
+        <span class="eyebrow solo t-he">העשייה · The Making</span>
+        <span class="eyebrow solo t-en">The Making</span>
+        <h2 class="t-he">חמישה חודשים. <em>חמישה ידיים.</em></h2>
+        <h2 class="t-en">Five months. <em>Five hands.</em></h2>
+        <p class="t-he">כל עותק עובר חמישה שלבים בחמש סדנאות — מלאכת יד שמתחילה בירושלים, עוברת דרך מילאנו, וחוזרת לתל אביב לחתימה.</p>
+        <p class="t-en">Each copy passes five stages in five workshops — handwork that begins in Jerusalem, travels through Milan, and returns to Tel Aviv to be signed.</p>
+      </div>
+
+      <div class="process-steps reveal">
+        <div class="step" data-num="I">
+          <h3 class="t-he">אוצרות</h3>
+          <h3 class="t-en">Curation</h3>
+          <p class="t-he">נוסח התפילה והפרשנות נבחרים עם הרב מרדכי עוזיאל, במשך שנה של שיחות שבועיות.</p>
+          <p class="t-en">The rite and the commentary are chosen with Rabbi Mordechai Uziel over a year of weekly conversations.</p>
+        </div>
+        <div class="step" data-num="II">
+          <h3 class="t-he">נייר איטלקי</h3>
+          <h3 class="t-en">Italian paper</h3>
+          <p class="t-he">נייר כותנה 120 גרם מבית מילאני פַּבּריאַנו — גוון אפור־אפר, גם להתאוששות מהדפסה בגוונים חמים.</p>
+          <p class="t-en">120gsm cotton paper from Milan's Fabriano — an ash-grey tone, built to carry warm ink beautifully.</p>
+        </div>
+        <div class="step" data-num="III">
+          <h3 class="t-he">הדפסה בירושלים</h3>
+          <h3 class="t-en">Printing in Jerusalem</h3>
+          <p class="t-he">הדפסה בלוחות אבן — דיו שחורה עם נגיעות זהב, בדפוס הוותיק של משפחת שמואלי.</p>
+          <p class="t-en">Stone-plate printing — black ink with gold accents, at the historic Shmueli press.</p>
+        </div>
+        <div class="step" data-num="IV">
+          <h3 class="t-he">כריכה ורקמה</h3>
+          <h3 class="t-en">Binding &amp; embroidery</h3>
+          <p class="t-he">דוד כתר כורך כל ספר ידנית. חוט זהב 22 קראט נרקם בשדרה ובמונוגרם על כל עותק.</p>
+          <p class="t-en">David Keter hand-binds each book. 22-carat gold thread is sewn on the spine and monogram.</p>
+        </div>
+        <div class="step" data-num="V">
+          <h3 class="t-he">חתימה</h3>
+          <h3 class="t-en">Signing</h3>
+          <p class="t-he">נרקיס חותמת כל עותק ידנית, מוסיפה את המספור מ־001 עד 360, ואת שם המקבל בעמוד ההקדשה.</p>
+          <p class="t-en">Narkis signs each copy by hand, adds the numbering 001 to 360, and writes the recipient's name on the dedication page.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- What's included in the box -->
+  <section class="included">
+    <div class="wrap">
+      <div class="included-grid">
+        <div class="reveal">
+          <figure class="photo-frame wide" style="aspect-ratio: 4/5;">
+            <img src="media/narkis-07-contemplative-bw.jpg" alt="Narkis portrait · contemplative" loading="lazy" />
+          </figure>
+          <div class="photo-caption">
+            <span class="num">№ 07</span>
+            <span>Portrait · Studio</span>
+          </div>
+        </div>
+
+        <div class="included-text reveal">
+          <span class="eyebrow solo t-he">מה בקופסה · In the box</span>
+          <span class="eyebrow solo t-en">In the box</span>
+          <h2 class="t-he">הקופסה <em>השחורה.</em></h2>
+          <h2 class="t-en">The <em>black box.</em></h2>
+
+          <ul class="included-list">
+            <li>
+              <span class="mark">i.</span>
+              <span>
+                <span class="label t-he">הסידור עצמו</span>
+                <span class="label t-en">The siddur itself</span>
+                <span class="hint t-he">184 עמודים · כריכת עור · ממוספר ידנית</span>
+                <span class="hint t-en">184 pages · leather bound · hand-numbered</span>
+              </span>
+            </li>
+            <li>
+              <span class="mark">ii.</span>
+              <span>
+                <span class="label t-he">נרתיק בד חליפין</span>
+                <span class="label t-en">A linen sleeve</span>
+                <span class="hint t-he">פשתן טבעי · רקום בחוט זהב עם המונוגרם</span>
+                <span class="hint t-en">Natural linen · embroidered with the gold monogram</span>
+              </span>
+            </li>
+            <li>
+              <span class="mark">iii.</span>
+              <span>
+                <span class="label t-he">מכתב יד מנרקיס</span>
+                <span class="label t-en">A handwritten letter from Narkis</span>
+                <span class="hint t-he">על דף נייר הצהוב של הסידור · אישי, לפי מספר העותק</span>
+                <span class="hint t-en">On the same yellow paper as the siddur · personal, per copy number</span>
+              </span>
+            </li>
+            <li>
+              <span class="mark">iv.</span>
+              <span>
+                <span class="label t-he">תעודת המהדורה</span>
+                <span class="label t-en">Certificate of edition</span>
+                <span class="hint t-he">מספור מ־001 עד 360 · חותם הזהב של האטליה</span>
+                <span class="hint t-en">Numbered 001 to 360 · the atelier's gold seal</span>
+              </span>
+            </li>
+            <li>
+              <span class="mark">v.</span>
+              <span>
+                <span class="label t-he">קופסת קרטון שחור</span>
+                <span class="label t-en">Black archival case</span>
+                <span class="hint t-he">קרטון בד שחור · עם כיסוי מגנט · אפשר לשמור לדורות</span>
+                <span class="hint t-en">Black cloth-covered card · magnetic lid · made to keep for generations</span>
+              </span>
+            </li>
+          </ul>
+
+          <p class="small t-he" style="font-family: var(--font-lt-body); font-size: 13px; color: var(--muted); margin-top: 18px;">
+            משלוח אישי באזור גוש דן · שליחות מאובטחת לכל ישראל · משלוח בינלאומי באירגון עם הלקוח
+          </p>
+          <p class="small t-en" style="font-family: var(--font-lt-body); font-size: 13px; color: var(--muted); margin-top: 18px;">
+            Personal delivery in Gush Dan · Secure courier elsewhere in Israel · International shipping arranged with the client
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="quotes">
+    <div class="wrap">
+      <div class="gallery-intro reveal">
+        <span class="eyebrow solo t-he">מי שכבר הזמינה · Early words</span>
+        <span class="eyebrow solo t-en">Early words</span>
+        <h2 class="t-he">מה אומרים הראשונים <em>שהחזיקו אותו.</em></h2>
+        <h2 class="t-en">What the first <em>holders said.</em></h2>
+      </div>
+
+      <div class="quotes-grid reveal">
+        <div class="q-card">
+          <blockquote>
+            <span class="t-he">כשפתחתי את הקופסה רעדתי. זה לא ספר — זה חפץ שעובר בין דורות.</span>
+            <span class="t-en">When I opened the box I shook. It isn't a book — it's an object that will pass between generations.</span>
+          </blockquote>
+          <cite>
+            <span class="t-he">יעל מ.</span>
+            <span class="t-en">Yael M.</span>
+            <span class="t-he">רמת השרון · עותק מס' 004</span>
+            <span class="t-en">Ramat Hasharon · copy no. 004</span>
+          </cite>
+        </div>
+        <div class="q-card">
+          <blockquote>
+            <span class="t-he">ההקדשה בכתב ידה של אמי. אני פותחת אותו כל בוקר. שווה כל שקל שלו, ופי עשרה.</span>
+            <span class="t-en">A dedication in my mother's handwriting. I open it every morning. Worth every shekel, and ten times more.</span>
+          </blockquote>
+          <cite>
+            <span class="t-he">תמר ה.</span>
+            <span class="t-en">Tamar H.</span>
+            <span class="t-he">תל אביב · עותק מס' 012</span>
+            <span class="t-en">Tel Aviv · copy no. 012</span>
+          </cite>
+        </div>
+        <div class="q-card">
+          <blockquote>
+            <span class="t-he">קניתי שניים — אחד לחתונת בתי ואחד לעצמי. חיכיתי חמישה חודשים. שווה היה בהחלט.</span>
+            <span class="t-en">I bought two — one for my daughter's wedding and one for myself. I waited five months. Well worth it.</span>
+          </blockquote>
+          <cite>
+            <span class="t-he">דוד ש.</span>
+            <span class="t-en">David S.</span>
+            <span class="t-he">ירושלים · עותקים 018 ו־019</span>
+            <span class="t-en">Jerusalem · copies 018 &amp; 019</span>
+          </cite>
         </div>
       </div>
     </div>
@@ -506,6 +1203,70 @@
     </div>
   </section>
 
+  <!-- FAQ -->
+  <section class="faq">
+    <div class="wrap">
+      <div class="faq-head reveal">
+        <span class="eyebrow solo t-he">שאלות · Questions</span>
+        <span class="eyebrow solo t-en">Frequent questions</span>
+        <h2 class="t-he">כל מה ששואלים <em>לפני ההזמנה.</em></h2>
+        <h2 class="t-en">Everything asked <em>before ordering.</em></h2>
+      </div>
+
+      <div class="faq-list reveal">
+        <details class="faq-item" open>
+          <summary>
+            <span class="t-he">מתי מגיע הסידור?</span>
+            <span class="t-en">When does the siddur arrive?</span>
+          </summary>
+          <p class="faq-body t-he">המהדורה הראשונה נשלחת באוקטובר MMXXVI. לאחר השריון תקבלי הודעה אישית עם תאריך המשלוח המדויק של העותק שלך, לפי מספרו.</p>
+          <p class="faq-body t-en">The first edition ships in October MMXXVI. After your reservation we will send a personal note with the exact shipping date of your copy, based on its number.</p>
+        </details>
+        <details class="faq-item">
+          <summary>
+            <span class="t-he">אפשר להחליף את ההקדשה אחרי השריון?</span>
+            <span class="t-en">Can I change the dedication after reserving?</span>
+          </summary>
+          <p class="faq-body t-he">בהחלט. את ההקדשה ניתן לשנות עד שבועיים לפני הדפסת העותק שלך. נתקשר אלייך באופן אישי כדי לאשר את הנוסח הסופי.</p>
+          <p class="faq-body t-en">Of course. The dedication can be edited up to two weeks before your copy is printed. We will call you personally to confirm the final wording.</p>
+        </details>
+        <details class="faq-item">
+          <summary>
+            <span class="t-he">מה אם ההקדשה שלי תהיה באותיות לטיניות?</span>
+            <span class="t-en">What if my dedication is in Latin letters?</span>
+          </summary>
+          <p class="faq-body t-he">אפשר. ההקדשה מודפסת באותיות יד שנכתבות במיוחד עבור העותק שלך — בעברית, באנגלית, או בשני השפות יחד.</p>
+          <p class="faq-body t-en">It's fine. The dedication is typeset in a calligraphic cut written specifically for your copy — in Hebrew, English, or both together.</p>
+        </details>
+        <details class="faq-item">
+          <summary>
+            <span class="t-he">מה הנוסח? אשכנז או ספרד?</span>
+            <span class="t-en">Which rite — Ashkenaz or Sefarad?</span>
+          </summary>
+          <p class="faq-body t-he">המהדורה הראשונה היא בנוסח עדות המזרח, בהדרכת הרב מרדכי עוזיאל. המהדורה הבאה תהיה בנוסח אשכנז. מעוניינת להיכנס לרשימת ההמתנה? נשלח הודעה.</p>
+          <p class="faq-body t-en">The first edition follows the Eastern (Sefardi) rite, under the guidance of Rabbi Mordechai Uziel. The next edition will follow the Ashkenazi rite. Would you like to join the waitlist? Let us know.</p>
+        </details>
+        <details class="faq-item">
+          <summary>
+            <span class="t-he">מה מדיניות ההחזרה?</span>
+            <span class="t-en">What is the return policy?</span>
+          </summary>
+          <p class="faq-body t-he">כיוון שכל עותק נקשר לשם וסבב את התהליך הידני — אין החזרות לאחר חתימה ומספור. עד החתימה (כשבוע לפני המשלוח), ניתן לבטל את הרכישה עם החזר מלא.</p>
+          <p class="faq-body t-en">Because each copy is personalised with a name and moves through hand-made stages — no returns after signing and numbering. Until the signing (about a week before shipping), orders can be cancelled with a full refund.</p>
+        </details>
+        <details class="faq-item">
+          <summary>
+            <span class="t-he">האם אפשר לראות דוגמה לפני ההזמנה?</span>
+            <span class="t-en">Can I see a sample before ordering?</span>
+          </summary>
+          <p class="faq-body t-he">בהחלט. באטליה בתל אביב יש עותק אפס לצפייה ביד — בתיאום מראש, בימי חמישי אחר הצהריים.</p>
+          <p class="faq-body t-en">Yes. A proof copy is kept for viewing in person at the Tel Aviv atelier — by appointment, Thursday afternoons.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reserve -->
   <section class="reserve" id="reserve">
     <div class="wrap">
       <div class="reserve-inner">
@@ -593,6 +1354,10 @@
         <a href="#siddur">
           <span class="t-he">הסידור</span>
           <span class="t-en">The Siddur</span>
+        </a>
+        <a href="#process">
+          <span class="t-he">העשייה</span>
+          <span class="t-en">The Making</span>
         </a>
         <a href="#story">
           <span class="t-he">הסיפור</span>
