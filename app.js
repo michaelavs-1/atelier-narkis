@@ -218,7 +218,7 @@
     });
   }
 
-  // ---------- Ambient: snake-threads + letter-chase verses ----------
+  // ---------- Ambient: snake-threads ----------
   // Delicate gold "snake" trails that grow along a path and then dissolve.
   // Paths are randomly chosen: free wander, hexagram star, rose (rosette),
   // spiral, or lemniscate (infinity). Each snake is traced as one continuous
@@ -227,7 +227,6 @@
   // (letter chasing letter).
   (function initAmbientBg() {
     const canvas = document.getElementById("thread-bg");
-    const versesLayer = document.getElementById("verses-layer");
     if (!canvas) return;
     const ctx = canvas.getContext("2d", { alpha: true });
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -488,289 +487,7 @@
     const snakes = [];
     const MAX_SNAKES = reduced ? 3 : (isMobile ? 5 : 8);
 
-    // =========================================================
-    //   VERSES — letter chases letter
-    //   Each char appears, then a fixed delay later fades out.
-    //   A rolling window of ~N chars is visible at any moment,
-    //   so the verse reads as a wave moving through the text.
-    // =========================================================
-    const VERSES = [
-      "שְׁמַע יִשְׂרָאֵל ה׳ אֱלֹהֵינוּ ה׳ אֶחָד",
-      "מַה טֹּבוּ אֹהָלֶיךָ יַעֲקֹב",
-      "שִׁוִּיתִי ה׳ לְנֶגְדִּי תָמִיד",
-      "הוֹדוּ לַה׳ כִּי טוֹב",
-      "בָּרְכִי נַפְשִׁי אֶת ה׳",
-      "אַשְׁרֵי יוֹשְׁבֵי בֵיתֶךָ",
-      "פִּתְחוּ לִי שַׁעֲרֵי צֶדֶק",
-      "מוֹדֶה אֲנִי לְפָנֶיךָ",
-      "כִּי עִמְּךָ מְקוֹר חַיִּים",
-      "שִׂים שָׁלוֹם טוֹבָה וּבְרָכָה",
-      "יְהִי רָצוֹן מִלְּפָנֶיךָ",
-      "מִזְמוֹר לְדָוִד ה׳ רֹעִי",
-      "הָאֵל הַגָּדוֹל הַגִּבּוֹר וְהַנּוֹרָא"
-    ];
-
-    let verseTimer = null;
-
-    // Pick a tier for a new verse.
-    // 20% bold (big, bright), 50% medium, 30% faded (tiny, ghostly)
-    function pickTier() {
-      const r = Math.random();
-      if (r < 0.2) return "bold";
-      if (r < 0.7) return "medium";
-      return "faded";
-    }
-
-    // Selectors for elements that contain text/content the user MUST read.
-    // Verses must never overlap any of these — they'd reduce readability.
-    const TEXT_SELECTORS = [
-      "h1", "h2", "h3", "h4", "h5", "h6",
-      "p", "li", "button", "label", "input", "textarea", "select",
-      ".lede", ".eyebrow", ".wordmark",
-      ".btn", ".t-he", ".t-en",
-      ".nav-main a",
-      ".tier-card *:not(img)",
-      ".addon *:not(img)",
-      ".faq-item",
-      ".config-label", ".config-summary",
-      ".field", ".field input", ".field textarea", ".field select",
-      "[data-ambient-avoid]"
-    ].join(",");
-
-    function rectsOverlap(a, b, pad) {
-      pad = pad || 0;
-      return !(
-        a.right + pad < b.left ||
-        a.left - pad > b.right ||
-        a.bottom + pad < b.top ||
-        a.top - pad > b.bottom
-      );
-    }
-
-    // Collect bounding rects of all text elements currently within viewport
-    function getViewportTextRects() {
-      const vw = window.innerWidth, vh = window.innerHeight;
-      const nodes = document.querySelectorAll(TEXT_SELECTORS);
-      const rects = [];
-      for (const el of nodes) {
-        // Skip anything inside ambient layer itself
-        if (el.closest && el.closest("#ambient-bg")) continue;
-        const r = el.getBoundingClientRect();
-        if (r.width <= 0 || r.height <= 0) continue;
-        if (r.bottom < 0 || r.top > vh) continue;
-        if (r.right < 0 || r.left > vw) continue;
-        rects.push({
-          left: r.left, right: r.right, top: r.top, bottom: r.bottom
-        });
-      }
-      return rects;
-    }
-
-    function spawnVerse(opts) {
-      if (!versesLayer) return false;
-      const tier = (opts && opts.tier) || pickTier();
-      const text = VERSES[Math.floor(Math.random() * VERSES.length)];
-      const vw = window.innerWidth, vh = window.innerHeight;
-
-      // Size by tier
-      let baseSize, variance;
-      if (tier === "bold") {
-        baseSize = isMobile ? 20 : 30;
-        variance = isMobile ? 8 : 16;
-      } else if (tier === "medium") {
-        baseSize = isMobile ? 13 : 18;
-        variance = isMobile ? 5 : 10;
-      } else {
-        baseSize = isMobile ? 10 : 13;
-        variance = isMobile ? 3 : 6;
-      }
-      const fontSize = baseSize + Math.random() * variance;
-      const rotation = (Math.random() - 0.5) * (isMobile ? 6 : 10);
-
-      // Build the element off-screen so we can measure it before committing
-      const el = document.createElement("div");
-      el.className = "verse-ghost tier-" + tier;
-      el.style.fontSize = fontSize + "px";
-      el.style.visibility = "hidden";
-      el.style.left = "-9999px";
-      el.style.top = "-9999px";
-      el.style.transform = "rotate(" + rotation.toFixed(2) + "deg)";
-
-      const chars = Array.from(text);
-      chars.forEach((c) => {
-        const s = document.createElement("span");
-        s.className = "char";
-        s.textContent = (c === " ") ? "\u00A0" : c;
-        // Pre-show so measurement reflects final rendered size
-        s.style.opacity = "1";
-        s.style.transform = "translateY(0)";
-        el.appendChild(s);
-      });
-      versesLayer.appendChild(el);
-
-      // Actual rendered size (pre-rotation box — rotation is tiny so ignore)
-      const bbox = el.getBoundingClientRect();
-      const width  = bbox.width + 12;   // padding around text
-      const height = bbox.height + 8;
-
-      // Gather forbidden text rects once per spawn
-      const textRects = getViewportTextRects();
-
-      // Try to find a safe spot: at the edges, not overlapping any text rect
-      const topMin = isMobile ? 60 : 50;
-      const topMax = Math.max(topMin + height + 40, vh - height - 60);
-      const sideInset = 4;
-      const sideMaxEdgeBand = isMobile
-        ? Math.max(90, vw * 0.28)
-        : Math.max(180, vw * 0.22);
-
-      let safe = null;
-      const TRIES = 25;
-      for (let i = 0; i < TRIES; i++) {
-        const side = Math.random() < 0.5 ? "left" : "right";
-        let x;
-        if (side === "left") {
-          x = sideInset + Math.random() * sideMaxEdgeBand;
-          // Don't extend beyond screen
-          if (x + width > vw - 8) x = Math.max(sideInset, vw - 8 - width);
-        } else {
-          // For right side we'll set `right`, but we need left-coord for overlap
-          const rightInset = sideInset + Math.random() * sideMaxEdgeBand;
-          x = vw - rightInset - width;
-          if (x < 8) x = 8;
-        }
-        const y = topMin + Math.random() * (topMax - topMin);
-
-        const candidate = {
-          left: x, top: y, right: x + width, bottom: y + height
-        };
-
-        // Check against every text rect (with a 6px safety pad)
-        let conflict = false;
-        for (const tr of textRects) {
-          if (rectsOverlap(candidate, tr, 6)) { conflict = true; break; }
-        }
-        // Also keep a verse from spawning right where another verse already lives
-        if (!conflict) {
-          const existing = versesLayer.querySelectorAll(".verse-ghost");
-          for (const ex of existing) {
-            if (ex === el) continue;
-            const er = ex.getBoundingClientRect();
-            if (er.width <= 0) continue;
-            if (rectsOverlap(candidate, {
-              left: er.left, right: er.right, top: er.top, bottom: er.bottom
-            }, 4)) { conflict = true; break; }
-          }
-        }
-        if (!conflict) {
-          safe = { side, x, y };
-          break;
-        }
-      }
-
-      if (!safe) {
-        // No room → remove element, skip this spawn
-        el.remove();
-        return false;
-      }
-
-      // Reset chars to invisible BEFORE revealing the element (no flash)
-      const charEls = el.querySelectorAll(".char");
-      charEls.forEach((c) => {
-        c.style.opacity = "";
-        c.style.transform = "";
-      });
-
-      // Commit the position
-      el.style.top = safe.y + "px";
-      if (safe.side === "left") {
-        el.style.left = safe.x + "px";
-        el.style.right = "auto";
-      } else {
-        el.style.right = (vw - (safe.x + width)) + "px";
-        el.style.left = "auto";
-      }
-      el.style.visibility = "";
-
-      let perChar, visibleWindow;
-      if (tier === "bold") {
-        perChar = 130 + Math.random() * 40;
-        visibleWindow = 1800 + Math.random() * 700;
-      } else if (tier === "medium") {
-        perChar = 100 + Math.random() * 50;
-        visibleWindow = 1300 + Math.random() * 500;
-      } else {
-        perChar = 70 + Math.random() * 40;
-        visibleWindow = 900 + Math.random() * 400;
-      }
-      const exitFade = 360;
-
-      charEls.forEach((c, i) => {
-        setTimeout(() => c.classList.add("shown"), i * perChar);
-        setTimeout(() => c.classList.add("gone"),  i * perChar + visibleWindow);
-      });
-
-      const lastExit = (charEls.length - 1) * perChar + visibleWindow + exitFade;
-      setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, lastExit + 200);
-      return true;
-    }
-
-    function scheduleNextVerse() {
-      const delay = reduced
-        ? 4000
-        : (isMobile ? (500 + Math.random() * 900) : (450 + Math.random() * 650));
-      verseTimer = setTimeout(() => {
-        // Try to spawn; if no safe spot, skip this cycle
-        const ok = spawnVerse();
-        if (ok && !reduced && Math.random() < 0.4) {
-          setTimeout(() => spawnVerse(), 180 + Math.random() * 280);
-        }
-        scheduleNextVerse();
-      }, delay);
-    }
-
-    // After the scroll SETTLES (not during it), fade out verses that are
-    // SIGNIFICANTLY overlapping text. We deliberately wait ~450ms after scroll
-    // stops and require a real area overlap (not just a 4px pad touch), so
-    // that verses feel PERSISTENT during scroll — which is what the user
-    // wants: they stay pinned to the viewport like a subtle background layer,
-    // not disappearing on every scroll movement.
-    let scrollSettleTimer = null;
-    function rectArea(r) { return Math.max(0, r.right - r.left) * Math.max(0, r.bottom - r.top); }
-    function rectIntersectArea(a, b) {
-      const ix = Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left));
-      const iy = Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
-      return ix * iy;
-    }
-    function pruneVersesOverlappingText() {
-      const textRects = getViewportTextRects();
-      const verses = document.querySelectorAll(".verse-ghost");
-      for (const v of verses) {
-        if (v.dataset.pruning === "1") continue;
-        const r = v.getBoundingClientRect();
-        if (r.width <= 0) continue;
-        const rect = { left: r.left, right: r.right, top: r.top, bottom: r.bottom };
-        const verseArea = rectArea(rect) || 1;
-        let maxOverlapFrac = 0;
-        for (const tr of textRects) {
-          const o = rectIntersectArea(rect, tr) / verseArea;
-          if (o > maxOverlapFrac) maxOverlapFrac = o;
-          if (maxOverlapFrac > 0.4) break;
-        }
-        // Only prune when >40% of verse is covering text — ignore grazing contact
-        if (maxOverlapFrac > 0.4) {
-          v.dataset.pruning = "1";
-          v.querySelectorAll(".char").forEach((c) => c.classList.add("gone"));
-          setTimeout(() => { if (v.parentNode) v.parentNode.removeChild(v); }, 420);
-        }
-      }
-    }
-    window.addEventListener("scroll", () => {
-      clearTimeout(scrollSettleTimer);
-      // 450ms AFTER scroll stops → verses persist during momentum scroll,
-      // eliminating any perception of "verses scrolling with the page"
-      scrollSettleTimer = setTimeout(pruneVersesOverlappingText, 450);
-    }, { passive: true });
+    // (Verses feature was removed — only ambient snake threads remain.)
 
     // ---- Main animation loop ----
     let rafId = null;
@@ -811,26 +528,15 @@
     // the canvas).
     rafId = requestAnimationFrame(frame);
 
-    // First verses fire quickly so the ambient feels alive from the start.
-    // Start with a bold verse so the user notices immediately.
-    setTimeout(() => {
-      spawnVerse({ tier: "bold" });
-      setTimeout(() => spawnVerse({ tier: "medium" }), 400);
-      setTimeout(() => spawnVerse({ tier: "faded" }), 700);
-      scheduleNextVerse();
-    }, 900);
-
     // Pause when tab hidden
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         if (rafId) cancelAnimationFrame(rafId);
         rafId = null;
-        if (verseTimer) { clearTimeout(verseTimer); verseTimer = null; }
       } else if (!rafId) {
         lastTick = performance.now();
         lastFrame = 0;
         rafId = requestAnimationFrame(frame);
-        scheduleNextVerse();
       }
     });
   })();

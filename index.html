@@ -999,9 +999,8 @@
       pointer-events: none;
       z-index: 30;
       overflow: hidden;
-      /* NO transform / will-change — they create a fixed-positioning
-         containing block which would hijack verses' position:fixed
-         and make them scroll with the document on iOS Safari. */
+      /* No transform / will-change — keeps ambient layer a clean
+         fixed overlay with no compositing surprises on iOS. */
     }
     #thread-bg {
       position: absolute;
@@ -1012,67 +1011,8 @@
       display: block;
       mix-blend-mode: screen;
     }
-    #verses-layer {
-      /* Body-level fixed layer — NO transform/filter/will-change,
-         so .verse-ghost children inherit a clean viewport as their
-         containing block on every browser (including iOS Safari). */
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 31;
-    }
-    .verse-ghost {
-      /* fixed directly — so verses are pinned to the viewport itself
-         and don't scroll with content, regardless of whether #ambient-bg
-         is fixed or absolute (iOS compositor-safe) */
-      position: fixed;
-      z-index: 31;
-      pointer-events: none;
-      font-family: "Frank Ruhl Libre", serif;
-      font-weight: 400;
-      letter-spacing: .02em;
-      white-space: pre;
-      direction: rtl;
-      text-align: right;
-      mix-blend-mode: screen;
-      text-shadow: 0 0 10px rgba(201, 169, 106, .35);
-      opacity: 1;
-      will-change: opacity, transform;
-    }
-    .verse-ghost .char {
-      display: inline-block;
-      opacity: 0;
-      transform: translateY(3px);
-      color: rgba(224, 194, 128, .95);
-      transition: opacity .28s ease, transform .34s ease;
-    }
-    .verse-ghost .char.shown { opacity: 1; transform: translateY(0); }
-    .verse-ghost .char.gone  { opacity: 0; transform: translateY(-3px); }
-
-    /* Opacity tiers — the ambient flow has bold, medium, and ghost verses.
-       `.shown:not(.gone)` ensures .gone still fades to zero even though
-       tier-class selectors have higher specificity. */
-    .verse-ghost.tier-bold .char {
-      color: rgba(255, 220, 160, 1);
-      font-weight: 500;
-    }
-    .verse-ghost.tier-bold .char.shown:not(.gone) { opacity: 1; }
-    .verse-ghost.tier-medium .char {
-      color: rgba(224, 194, 128, .9);
-    }
-    .verse-ghost.tier-medium .char.shown:not(.gone) { opacity: .75; }
-    .verse-ghost.tier-faded .char {
-      color: rgba(201, 169, 106, .7);
-    }
-    .verse-ghost.tier-faded .char.shown:not(.gone) { opacity: .35; }
-    .verse-ghost.tier-bold   { text-shadow: 0 0 12px rgba(255,220,160,.5), 0 0 20px rgba(201,169,106,.3); }
-    .verse-ghost.tier-medium { text-shadow: 0 0 8px rgba(201,169,106,.35); }
-    .verse-ghost.tier-faded  { text-shadow: 0 0 4px rgba(201,169,106,.15); }
-
     /* Desktop: ambient on top, content z=1 */
-    body > *:not(#ambient-bg):not(#verses-layer) { position: relative; z-index: 1; }
+    body > *:not(#ambient-bg) { position: relative; z-index: 1; }
     .topbar { position: sticky; z-index: 50; }
 
     html, body { overflow-x: hidden; }
@@ -1081,18 +1021,14 @@
     /* ---------- MOBILE: full ambient, no iOS black-screen ----------
        iOS Safari compositing bug triggers on:
          position:fixed + mix-blend-mode:screen child + large canvas
-       We keep #ambient-bg position:fixed (so verses DON'T scroll with
-       content — they stay in place while new ones appear/disappear),
-       but we REMOVE mix-blend-mode on mobile. Canvas has alpha:true
-       so only drawn gold strokes are opaque; transparent pixels let
-       the page show through naturally. No blend mode → no iOS bug.
+       We keep #ambient-bg position:fixed, but REMOVE mix-blend-mode
+       on mobile. Canvas has alpha:true so only drawn gold strokes
+       are opaque; transparent pixels let the page show through.
     */
     @media (max-width: 768px), (pointer: coarse) {
       #ambient-bg {
-        /* stays fixed so verses don't scroll with page */
         position: fixed;
         z-index: 30;
-        /* Drop transform/will-change that can trigger iOS compositing bug */
         transform: none;
         will-change: auto;
       }
@@ -1101,19 +1037,11 @@
         mix-blend-mode: normal !important;   /* CRITICAL on iOS */
         opacity: .95;
       }
-      .verse-ghost {
-        mix-blend-mode: normal !important;   /* CRITICAL on iOS */
-        text-shadow:
-          0 0 6px rgba(201,169,106,.6),
-          0 0 14px rgba(201,169,106,.25);
-      }
     }
 
     /* Honor reduced motion: still show threads, but dimmed */
     @media (prefers-reduced-motion: reduce) {
       #thread-bg { opacity: .4; }
-      .verse-ghost { transition: none; }
-      .verse-ghost .char { transition: opacity .12s, transform .12s; }
     }
   </style>
 </head>
@@ -1121,10 +1049,6 @@
   <div id="ambient-bg" aria-hidden="true">
     <canvas id="thread-bg"></canvas>
   </div>
-  <!-- verses-layer is OUTSIDE #ambient-bg to guarantee no ancestor
-       transform/filter/will-change can hijack .verse-ghost's
-       position:fixed. iOS Safari is strict about this. -->
-  <div id="verses-layer" aria-hidden="true"></div>
   <header class="topbar">
     <nav class="nav-main right" aria-label="main">
       <a href="#home" data-nav="home" class="active">
