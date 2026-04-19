@@ -968,9 +968,34 @@
       to   { opacity: 1; transform: translateY(0); }
     }
     .topbar { animation: topbarIn 1s cubic-bezier(.22,.7,.24,1) both; }
+
+    /* ============ AMBIENT GOLD THREADS ============ */
+    /* Fixed full-viewport canvas for continuously weaving gold threads.
+       Sits behind everything, screen-blends so it glows on dark bg,
+       pointer-events:none so it never blocks interaction. */
+    #thread-bg {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+      mix-blend-mode: screen;
+      opacity: .75;
+      display: block;
+    }
+    /* Keep all site content above the thread canvas */
+    body > *:not(#thread-bg) { position: relative; z-index: 1; }
+    /* Topbar stays on top */
+    .topbar { z-index: 50; }
+    /* Honor reduced motion: fade canvas but don't hide entirely */
+    @media (prefers-reduced-motion: reduce) {
+      #thread-bg { opacity: .35; }
+    }
   </style>
 </head>
 <body>
+  <canvas id="thread-bg" aria-hidden="true"></canvas>
   <header class="topbar">
     <nav class="nav-main right" aria-label="main">
       <a href="#home" data-nav="home" class="active">
