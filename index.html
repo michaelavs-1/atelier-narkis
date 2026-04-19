@@ -970,28 +970,31 @@
     .topbar { animation: topbarIn 1s cubic-bezier(.22,.7,.24,1) both; }
 
     /* ============ AMBIENT BACKGROUND LAYER ============ */
-    /* Single fixed overlay hosting:
-       - #thread-bg  : canvas with weaving gold threads + ornamental figures
-       - #verses-layer : Hebrew pesukim that type out and fade
-       Placed ABOVE section backgrounds (which are opaque) but below topbar.
-       mix-blend-mode: screen adds gold light without obscuring content. */
+    /* Fixed overlay hosting:
+       - #thread-bg    : canvas with snake-threads that trace shapes and dissolve
+       - #verses-layer : Hebrew pesukim that write and fade like a wave
+       IMPORTANT: mix-blend-mode is applied to the CHILDREN (canvas / .verse-ghost)
+       NOT the fixed wrapper — this avoids iOS Safari's fixed+blend black-screen bug. */
     #ambient-bg {
       position: fixed;
       inset: 0;
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
       pointer-events: none;
       z-index: 30;
       overflow: hidden;
-      mix-blend-mode: screen;
+      /* Force a dedicated compositor layer (helps iOS Safari) */
+      transform: translateZ(0);
+      will-change: transform;
     }
     #thread-bg {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
-      opacity: .55;
+      opacity: .85;
       display: block;
+      mix-blend-mode: screen;
     }
     #verses-layer {
       position: absolute;
@@ -1000,35 +1003,49 @@
       height: 100%;
       pointer-events: none;
     }
-    /* Individual ghost verse: gold, serif, slightly italicized Hebrew */
+    /* Individual ghost verse — gold, serif Hebrew */
     .verse-ghost {
       position: absolute;
-      color: rgba(201, 169, 106, .0); /* per-char opacity set via JS */
       font-family: "Frank Ruhl Libre", serif;
       font-weight: 400;
       letter-spacing: .02em;
-      white-space: nowrap;
+      /* Preserve spaces between inline-block char spans */
+      white-space: pre;
       direction: rtl;
       text-align: right;
       mix-blend-mode: screen;
       text-shadow: 0 0 10px rgba(201, 169, 106, .35);
-      transition: opacity 1.4s ease;
       opacity: 1;
       will-change: opacity, transform;
     }
     .verse-ghost .char {
       display: inline-block;
       opacity: 0;
-      transform: translateY(4px);
+      transform: translateY(3px);
       color: rgba(224, 194, 128, .95);
-      transition: opacity .35s ease, transform .5s ease;
+      transition: opacity .28s ease, transform .34s ease;
     }
     .verse-ghost .char.shown { opacity: 1; transform: translateY(0); }
-    .verse-ghost.fading { opacity: 0; }
+    .verse-ghost .char.gone  { opacity: 0; transform: translateY(-3px); }
 
     /* Site content stacking */
     body > *:not(#ambient-bg) { position: relative; z-index: 1; }
     .topbar { position: sticky; z-index: 50; }
+
+    /* Mobile: ensure no layout breakage, lighter ambient */
+    html, body { overflow-x: hidden; }
+    body { background: var(--ink); min-height: 100vh; }
+    @media (max-width: 640px) {
+      #thread-bg { opacity: .45; }
+      .verse-ghost { font-size: 13px !important; text-shadow: 0 0 6px rgba(201,169,106,.25); }
+    }
+    @media (max-width: 420px) {
+      #thread-bg { opacity: .3; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #thread-bg { opacity: .4; }
+      .verse-ghost .char { transition: opacity .12s, transform .12s; }
+    }
 
     /* Honor reduced motion: still show threads, but dimmed */
     @media (prefers-reduced-motion: reduce) {

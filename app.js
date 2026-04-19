@@ -218,25 +218,30 @@
     });
   }
 
-  // ---------- Ambient gold threads + ornamental figures + verses ----------
-  // A single canvas draws two layers:
-  //   1) Drifting sinusoidal gold threads (the "warp/weft")
-  //   2) Ornamental thread-figures that fade in, breathe, and fade out
-  //      (Magen David, rosette, spiral, scroll flourish)
-  // In parallel, a DOM layer types out Hebrew pesukim and fades them.
+  // ---------- Ambient: snake-threads + letter-chase verses ----------
+  // Delicate gold "snake" trails that grow along a path and then dissolve.
+  // Paths are randomly chosen: free wander, hexagram star, rose (rosette),
+  // spiral, or lemniscate (infinity). Each snake is traced as one continuous
+  // thin thread — a stroke with only a short visible window (head + tail).
+  // In parallel, Hebrew pesukim appear letter-by-letter with a rolling fade
+  // (letter chasing letter).
   (function initAmbientBg() {
     const canvas = document.getElementById("thread-bg");
     const versesLayer = document.getElementById("verses-layer");
     if (!canvas) return;
     const ctx = canvas.getContext("2d", { alpha: true });
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Mobile detection: smaller viewport or coarse pointer
+    const isMobile = window.matchMedia("(max-width: 640px), (pointer: coarse)").matches;
 
-    let W = 0, H = 0, DPR = Math.min(window.devicePixelRatio || 1, 2);
+    let W = 0, H = 0;
+    // Clamp DPR hard on mobile to avoid oversized canvas buffers
+    let DPR = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2);
     function resize() {
       W = window.innerWidth;
       H = window.innerHeight;
-      canvas.width = Math.floor(W * DPR);
-      canvas.height = Math.floor(H * DPR);
+      canvas.width = Math.max(1, Math.floor(W * DPR));
+      canvas.height = Math.max(1, Math.floor(H * DPR));
       canvas.style.width = W + "px";
       canvas.style.height = H + "px";
       ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
@@ -252,261 +257,235 @@
       "rgba(168,134,74,"     // antique
     ];
 
-    // ---- Ambient drifting threads ----
-    function makeThread(i, count) {
-      const orient = Math.random() < 0.55 ? "h" : "v";
-      const color = GOLDS[Math.floor(Math.random() * GOLDS.length)];
-      // Bolder than the original subtle pass, but dimmed via container opacity
-      const alphaBase = 0.30 + Math.random() * 0.30;
-      const widthPx = 0.7 + Math.random() * 1.2;
-      const phase = Math.random() * Math.PI * 2;
-      const speed = 8 + Math.random() * 18;
-      const amp = 30 + Math.random() * 140;
-      const wavelen = 220 + Math.random() * 420;
-      const offset = (i / Math.max(count - 1, 1));
+    // =========================================================
+    //   SNAKE-THREAD SYSTEM
+    //   Each snake is a thin gold line that grows along a pre-
+    //   computed path, then dissolves as its tail catches up.
+    //   Paths are: wander (random smooth walk), star (hexagram),
+    //   rose (rosette), spiral, infinity (lemniscate).
+    // =========================================================
+
+    // Path generators. Each returns an array of {x, y} points
+    // approximately equidistant. We keep cumulative arc lengths for
+    // head/tail math.
+    function pathWander(x0, y0) {
+      const pts = [];
+      const N = 200 + Math.floor(Math.random() * 120);
+      let x = x0, y = y0;
+      let ang = Math.random() * Math.PI * 2;
+      const seed1 = Math.random() * 1000;
+      const seed2 = Math.random() * 1000;
+      const step = 3 + Math.random() * 2;
+      for (let i = 0; i <= N; i++) {
+        pts.push({ x, y });
+        // Smooth turning via sum of low-freq sines (imitates Perlin noise)
+        const turn =
+          Math.sin(i * 0.07 + seed1) * 0.11 +
+          Math.sin(i * 0.031 + seed2) * 0.07 +
+          Math.sin(i * 0.013 + seed1 * 0.3) * 0.04;
+        ang += turn;
+        x += Math.cos(ang) * step;
+        y += Math.sin(ang) * step;
+      }
+      return pts;
+    }
+
+    function pathHexagram(cx, cy, r) {
+      // Unicursal star outline: 12 vertices alternating outer (r) and inner
+      // points — traces a Star-of-David silhouette as one continuous line
+      const ri = r * 0.577; // √3/3 for a regular hexagram
+      const verts = [];
+      for (let i = 0; i <= 12; i++) {
+        const rad = (i % 2 === 0) ? r : ri;
+        const ang = -Math.PI / 2 + i * Math.PI / 6;
+        verts.push({ x: cx + Math.cos(ang) * rad, y: cy + Math.sin(ang) * rad });
+      }
+      // Subdivide each segment so the snake traces it smoothly
+      return subdivide(verts, 4);
+    }
+
+    function pathRose(cx, cy, r, k) {
+      const petals = k || (Math.random() < 0.5 ? 3 : 4);
+      const N = 320;
+      const pts = [];
+      for (let i = 0; i <= N; i++) {
+        const t = (i / N) * Math.PI * 2;
+        const rr = r * Math.abs(Math.cos(petals * t));
+        pts.push({ x: cx + Math.cos(t) * rr, y: cy + Math.sin(t) * rr });
+      }
+      return pts;
+    }
+
+    function pathSpiral(cx, cy, r) {
+      const turns = 2.5 + Math.random() * 1.5;
+      const N = 260;
+      const pts = [];
+      for (let i = 0; i <= N; i++) {
+        const t = i / N;
+        const a = t * turns * Math.PI * 2;
+        const rr = t * r;
+        pts.push({ x: cx + Math.cos(a) * rr, y: cy + Math.sin(a) * rr });
+      }
+      return pts;
+    }
+
+    function pathInfinity(cx, cy, r) {
+      // Lemniscate of Gerono, traced twice so head+tail can meet cleanly
+      const N = 260;
+      const pts = [];
+      for (let i = 0; i <= N; i++) {
+        const t = (i / N) * Math.PI * 2;
+        const d = 1 + Math.sin(t) * Math.sin(t);
+        const x = r * Math.cos(t) / d;
+        const y = r * Math.cos(t) * Math.sin(t) / d;
+        pts.push({ x: cx + x, y: cy + y });
+      }
+      return pts;
+    }
+
+    // Linear-subdivide a polyline into denser points (every `step` px)
+    function subdivide(verts, step) {
+      const out = [];
+      for (let i = 0; i < verts.length - 1; i++) {
+        const a = verts[i], b = verts[i + 1];
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const len = Math.hypot(dx, dy);
+        const n = Math.max(2, Math.ceil(len / step));
+        for (let j = 0; j < n; j++) {
+          const t = j / n;
+          out.push({ x: a.x + dx * t, y: a.y + dy * t });
+        }
+      }
+      out.push(verts[verts.length - 1]);
+      return out;
+    }
+
+    // Pick a random corner/edge position that avoids the middle of the page
+    function randEdgePos() {
+      const margin = Math.min(80, W * 0.06);
+      const edge = Math.random();
+      if (edge < 0.3) return { x: margin + Math.random() * (W * 0.28), y: margin + Math.random() * (H - 2 * margin) };
+      if (edge < 0.6) return { x: W - margin - Math.random() * (W * 0.28), y: margin + Math.random() * (H - 2 * margin) };
+      if (edge < 0.8) return { x: margin + Math.random() * (W - 2 * margin), y: margin + Math.random() * (H * 0.2) };
+      return { x: margin + Math.random() * (W - 2 * margin), y: H - margin - Math.random() * (H * 0.2) };
+    }
+
+    // Snake types & probabilities — mostly wandering, occasional shape
+    function makeSnake() {
+      const roll = Math.random();
+      const pos = randEdgePos();
+      let pts, type;
+      const sizeMax = Math.min(W, H);
+      const r = Math.max(40, Math.min(140, sizeMax * 0.12 + Math.random() * 50));
+
+      if (roll < 0.55) {
+        type = "wander";
+        pts = pathWander(pos.x, pos.y);
+      } else if (roll < 0.72) {
+        type = "star";
+        pts = pathHexagram(pos.x, pos.y, r);
+      } else if (roll < 0.86) {
+        type = "rose";
+        pts = pathRose(pos.x, pos.y, r, Math.random() < 0.5 ? 3 : 4);
+      } else if (roll < 0.95) {
+        type = "spiral";
+        pts = pathSpiral(pos.x, pos.y, r);
+      } else {
+        type = "infinity";
+        pts = pathInfinity(pos.x, pos.y, r);
+      }
+
+      // Compute cumulative arc lengths
+      const lens = [0];
+      for (let i = 1; i < pts.length; i++) {
+        const dx = pts[i].x - pts[i - 1].x;
+        const dy = pts[i].y - pts[i - 1].y;
+        lens.push(lens[i - 1] + Math.hypot(dx, dy));
+      }
+      const totalLen = lens[lens.length - 1];
+      if (totalLen < 10) return null;
+
       return {
-        orient, color, alphaBase, widthPx,
-        phase, speed, amp, wavelen, offset,
-        driftSpeed: 0.00008 + Math.random() * 0.00020,
-        driftPhase: Math.random() * Math.PI * 2
+        pts, lens, totalLen, type,
+        head: -20,
+        // Speed & trail length for delicate feel — thin, slow, short tail
+        speed: 60 + Math.random() * 90,
+        trail: 70 + Math.random() * 120,
+        color: GOLDS[Math.floor(Math.random() * GOLDS.length)],
+        alpha: 0.45 + Math.random() * 0.35,
+        width: 0.35 + Math.random() * 0.5
       };
     }
 
-    const THREAD_COUNT = reduced ? 8 : 16;
-    let threads = Array.from({ length: THREAD_COUNT }, (_, i) => makeThread(i, THREAD_COUNT));
+    // Update head; returns false when snake is fully gone
+    function updateSnake(s, dt) {
+      s.head += s.speed * dt;
+      return (s.head - s.trail) < s.totalLen;
+    }
 
-    window.addEventListener("resize", () => {
-      threads = Array.from({ length: THREAD_COUNT }, (_, i) => makeThread(i, THREAD_COUNT));
-    });
+    // Binary-search helper: find first index where lens[i] >= target
+    function findIndex(lens, target) {
+      let lo = 0, hi = lens.length - 1;
+      while (lo < hi) {
+        const m = (lo + hi) >> 1;
+        if (lens[m] < target) lo = m + 1; else hi = m;
+      }
+      return lo;
+    }
 
-    function drawThread(th, now) {
-      const elapsed = (now - t0) / 1000;
-      const travel = elapsed * th.speed;
-      const drift = Math.sin(now * th.driftSpeed + th.driftPhase) * 60;
+    function drawSnake(s) {
+      const headDist = s.head;
+      const tailDist = s.head - s.trail;
+      if (headDist <= 0 || tailDist >= s.totalLen) return;
+      const start = Math.max(0, tailDist);
+      const end = Math.min(s.totalLen, headDist);
+      if (end - start < 1) return;
+      const iStart = findIndex(s.lens, start);
+      const iEnd = findIndex(s.lens, end);
+      if (iEnd <= iStart) return;
 
+      // Split visible span into 3 sub-strokes for a head→tail taper
+      const total = iEnd - iStart;
+      const seg = Math.max(2, Math.floor(total / 3));
+      const mid1 = iStart + seg, mid2 = iStart + seg * 2;
+
+      // Tail third — faintest
+      strokeSegment(s, iStart, mid1, 0.3);
+      // Middle third
+      strokeSegment(s, mid1, mid2, 0.75);
+      // Head third — brightest
+      strokeSegment(s, mid2, iEnd, 1.0);
+    }
+
+    function strokeSegment(s, i0, i1, alphaMul) {
+      if (i1 <= i0) return;
+      const a = (s.alpha * alphaMul).toFixed(3);
       ctx.beginPath();
+      ctx.moveTo(s.pts[i0].x, s.pts[i0].y);
+      for (let i = i0 + 1; i <= i1; i++) {
+        ctx.lineTo(s.pts[i].x, s.pts[i].y);
+      }
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
-      ctx.lineWidth = th.widthPx;
-
-      if (th.orient === "h") {
-        const baseY = th.offset * H + drift;
-        for (let x = -80; x <= W + 80; x += 8) {
-          const y = baseY + Math.sin((x + travel) / th.wavelen * Math.PI * 2 + th.phase) * th.amp;
-          if (x === -80) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-        }
-      } else {
-        const baseX = th.offset * W + drift;
-        for (let y = -80; y <= H + 80; y += 8) {
-          const x = baseX + Math.sin((y + travel) / th.wavelen * Math.PI * 2 + th.phase) * th.amp;
-          if (y === -80) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-        }
-      }
-
-      ctx.strokeStyle = th.color + th.alphaBase.toFixed(3) + ")";
+      ctx.lineWidth = s.width;
+      ctx.strokeStyle = s.color + a + ")";
       ctx.stroke();
-      // Halo
-      ctx.lineWidth = th.widthPx * 3.5;
-      ctx.strokeStyle = th.color + (th.alphaBase * 0.2).toFixed(3) + ")";
+      // Thin halo
+      ctx.lineWidth = s.width * 2.4;
+      ctx.strokeStyle = s.color + (s.alpha * alphaMul * 0.16).toFixed(3) + ")";
       ctx.stroke();
     }
 
-    // ---- Ornamental figures (thin-thread shapes) ----
-    // Each figure: type, cx, cy, radius, rotation, color, born, lifetime.
-    // Lifetime phases: fade-in (2s), hold (6–10s), fade-out (3s).
-    const FIGURE_TYPES = ["magen", "rosette", "spiral", "flourish"];
-    const figures = [];
-    const MAX_FIGURES = reduced ? 1 : 3;
+    // Live snake pool
+    const snakes = [];
+    const MAX_SNAKES = reduced ? 3 : (isMobile ? 4 : 7);
 
-    function spawnFigure(now) {
-      const type = FIGURE_TYPES[Math.floor(Math.random() * FIGURE_TYPES.length)];
-      // Prefer edges/corners to not collide with main text
-      const margin = 120;
-      const edge = Math.random();
-      let cx, cy;
-      if (edge < 0.3) { // left strip
-        cx = margin + Math.random() * (W * 0.28);
-        cy = margin + Math.random() * (H - 2 * margin);
-      } else if (edge < 0.6) { // right strip
-        cx = W - margin - Math.random() * (W * 0.28);
-        cy = margin + Math.random() * (H - 2 * margin);
-      } else if (edge < 0.8) { // top strip
-        cx = margin + Math.random() * (W - 2 * margin);
-        cy = margin + Math.random() * (H * 0.22);
-      } else { // bottom strip
-        cx = margin + Math.random() * (W - 2 * margin);
-        cy = H - margin - Math.random() * (H * 0.22);
-      }
-      const radius = 60 + Math.random() * 90;
-      const rotation = Math.random() * Math.PI * 2;
-      const color = GOLDS[Math.floor(Math.random() * GOLDS.length)];
-      const lifetime = 11000 + Math.random() * 6000;
-      figures.push({
-        type, cx, cy, radius, rotation,
-        rotSpeed: (Math.random() - 0.5) * 0.0003,
-        color, born: now, lifetime,
-        seed: Math.random()
-      });
-    }
-
-    // Draw a Magen David (two overlapping triangles) as a single continuous path
-    function drawMagen(f, alpha, now) {
-      const r = f.radius;
-      const rot = f.rotation + (now - f.born) * f.rotSpeed;
-      ctx.save();
-      ctx.translate(f.cx, f.cy);
-      ctx.rotate(rot);
-      ctx.lineWidth = 0.8;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-      ctx.strokeStyle = f.color + (alpha * 0.95).toFixed(3) + ")";
-      // Triangle 1 (pointing up)
-      ctx.beginPath();
-      for (let i = 0; i <= 3; i++) {
-        const a = -Math.PI / 2 + i * (Math.PI * 2 / 3);
-        const x = Math.cos(a) * r, y = Math.sin(a) * r;
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-      // Triangle 2 (pointing down)
-      ctx.beginPath();
-      for (let i = 0; i <= 3; i++) {
-        const a = Math.PI / 2 + i * (Math.PI * 2 / 3);
-        const x = Math.cos(a) * r, y = Math.sin(a) * r;
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-      // Inner hexagon (subtle)
-      ctx.beginPath();
-      const ri = r * 0.5;
-      for (let i = 0; i <= 6; i++) {
-        const a = i * Math.PI / 3;
-        const x = Math.cos(a) * ri, y = Math.sin(a) * ri;
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      }
-      ctx.strokeStyle = f.color + (alpha * 0.4).toFixed(3) + ")";
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    // Draw a rosette: 8 curved petals radiating from center
-    function drawRosette(f, alpha, now) {
-      const r = f.radius;
-      const rot = f.rotation + (now - f.born) * f.rotSpeed;
-      ctx.save();
-      ctx.translate(f.cx, f.cy);
-      ctx.rotate(rot);
-      ctx.lineWidth = 0.8;
-      ctx.lineCap = "round";
-      ctx.strokeStyle = f.color + (alpha * 0.9).toFixed(3) + ")";
-      const petals = 8;
-      for (let i = 0; i < petals; i++) {
-        const a = i * Math.PI * 2 / petals;
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        // Quadratic curve out and back — lobed petal
-        const ox = Math.cos(a) * r;
-        const oy = Math.sin(a) * r;
-        const px = Math.cos(a + 0.5) * r * 0.6;
-        const py = Math.sin(a + 0.5) * r * 0.6;
-        const px2 = Math.cos(a - 0.5) * r * 0.6;
-        const py2 = Math.sin(a - 0.5) * r * 0.6;
-        ctx.quadraticCurveTo(px, py, ox, oy);
-        ctx.quadraticCurveTo(px2, py2, 0, 0);
-        ctx.stroke();
-      }
-      // Center circle
-      ctx.beginPath();
-      ctx.arc(0, 0, r * 0.14, 0, Math.PI * 2);
-      ctx.strokeStyle = f.color + (alpha * 0.7).toFixed(3) + ")";
-      ctx.stroke();
-      // Outer ring
-      ctx.beginPath();
-      ctx.arc(0, 0, r * 1.05, 0, Math.PI * 2);
-      ctx.strokeStyle = f.color + (alpha * 0.35).toFixed(3) + ")";
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    // Archimedean spiral, 3 turns
-    function drawSpiral(f, alpha, now) {
-      const r = f.radius;
-      const rot = f.rotation + (now - f.born) * f.rotSpeed * 2;
-      ctx.save();
-      ctx.translate(f.cx, f.cy);
-      ctx.rotate(rot);
-      ctx.lineWidth = 0.9;
-      ctx.lineCap = "round";
-      ctx.strokeStyle = f.color + (alpha * 0.9).toFixed(3) + ")";
-      ctx.beginPath();
-      const turns = 3;
-      const steps = 200;
-      for (let i = 0; i <= steps; i++) {
-        const t = i / steps;
-        const a = t * turns * Math.PI * 2;
-        const rr = t * r;
-        const x = Math.cos(a) * rr;
-        const y = Math.sin(a) * rr;
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    // Scroll flourish: S-curve with two decorative loops
-    function drawFlourish(f, alpha, now) {
-      const r = f.radius;
-      const rot = f.rotation + (now - f.born) * f.rotSpeed;
-      ctx.save();
-      ctx.translate(f.cx, f.cy);
-      ctx.rotate(rot);
-      ctx.lineWidth = 0.9;
-      ctx.lineCap = "round";
-      ctx.strokeStyle = f.color + (alpha * 0.9).toFixed(3) + ")";
-      // Main S-curve
-      ctx.beginPath();
-      ctx.moveTo(-r, 0);
-      ctx.bezierCurveTo(-r * 0.5, -r * 0.8, r * 0.5, r * 0.8, r, 0);
-      ctx.stroke();
-      // Left loop
-      ctx.beginPath();
-      ctx.arc(-r * 0.85, -r * 0.1, r * 0.22, 0, Math.PI * 2);
-      ctx.stroke();
-      // Right loop
-      ctx.beginPath();
-      ctx.arc(r * 0.85, r * 0.1, r * 0.22, 0, Math.PI * 2);
-      ctx.stroke();
-      // Accent crosses near loops
-      ctx.strokeStyle = f.color + (alpha * 0.5).toFixed(3) + ")";
-      ctx.beginPath();
-      ctx.moveTo(-r * 0.85 - 4, -r * 0.1); ctx.lineTo(-r * 0.85 + 4, -r * 0.1);
-      ctx.moveTo(-r * 0.85, -r * 0.1 - 4); ctx.lineTo(-r * 0.85, -r * 0.1 + 4);
-      ctx.moveTo(r * 0.85 - 4, r * 0.1); ctx.lineTo(r * 0.85 + 4, r * 0.1);
-      ctx.moveTo(r * 0.85, r * 0.1 - 4); ctx.lineTo(r * 0.85, r * 0.1 + 4);
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    function drawFigure(f, now) {
-      const age = now - f.born;
-      if (age >= f.lifetime) return false;
-      const fadeIn = 2000, fadeOut = 3000;
-      let alpha = 1;
-      if (age < fadeIn) alpha = age / fadeIn;
-      else if (age > f.lifetime - fadeOut) alpha = (f.lifetime - age) / fadeOut;
-      // Soft breathing
-      alpha *= 0.75 + 0.25 * Math.sin((age / 1000) * 1.3);
-      alpha = Math.max(0, Math.min(1, alpha));
-      switch (f.type) {
-        case "magen":    drawMagen(f, alpha, now); break;
-        case "rosette":  drawRosette(f, alpha, now); break;
-        case "spiral":   drawSpiral(f, alpha, now); break;
-        case "flourish": drawFlourish(f, alpha, now); break;
-      }
-      return true;
-    }
-
-    // ---- Verses (typed-out Hebrew pesukim) ----
+    // =========================================================
+    //   VERSES — letter chases letter
+    //   Each char appears, then a fixed delay later fades out.
+    //   A rolling window of ~N chars is visible at any moment,
+    //   so the verse reads as a wave moving through the text.
+    // =========================================================
     const VERSES = [
       "שְׁמַע יִשְׂרָאֵל ה׳ אֱלֹהֵינוּ ה׳ אֶחָד",
       "מַה טֹּבוּ אֹהָלֶיךָ יַעֲקֹב",
@@ -526,57 +505,62 @@
     let verseTimer = null;
     function spawnVerse() {
       if (!versesLayer) return;
-      // pick random verse
       const text = VERSES[Math.floor(Math.random() * VERSES.length)];
-      // Random edge-ish position; avoid center band
       const vw = window.innerWidth, vh = window.innerHeight;
-      const fontSize = 18 + Math.random() * 14; // 18–32px
+      // On mobile use smaller fonts
+      const baseSize = isMobile ? 12 : 18;
+      const variance = isMobile ? 6 : 14;
+      const fontSize = baseSize + Math.random() * variance;
       const side = Math.random() < 0.5 ? "left" : "right";
-      const top = 60 + Math.random() * (vh - 200);
-      const rotation = (Math.random() - 0.5) * 10; // -5..+5 deg
+      const topMin = isMobile ? 80 : 60;
+      const topMax = Math.max(topMin + 40, vh - 120);
+      const top = topMin + Math.random() * (topMax - topMin);
+      const rotation = (Math.random() - 0.5) * (isMobile ? 5 : 10);
+      const sideInset = isMobile ? 8 : 10;
+      const sideRange = isMobile ? 30 : 80;
 
       const el = document.createElement("div");
       el.className = "verse-ghost";
       el.style.fontSize = fontSize + "px";
       el.style.top = top + "px";
       if (side === "left") {
-        el.style.left = (10 + Math.random() * 80) + "px";
+        el.style.left = (sideInset + Math.random() * sideRange) + "px";
         el.style.right = "auto";
       } else {
-        el.style.right = (10 + Math.random() * 80) + "px";
+        el.style.right = (sideInset + Math.random() * sideRange) + "px";
         el.style.left = "auto";
       }
       el.style.transform = "rotate(" + rotation.toFixed(2) + "deg)";
 
-      // Wrap each char in a span so we can reveal them one by one
+      // Wrap each char in a span. Convert spaces to NBSP so inline-block spans
+      // don't collapse the whitespace into zero-width.
       const chars = Array.from(text);
       chars.forEach((c) => {
         const s = document.createElement("span");
         s.className = "char";
-        s.textContent = c;
+        s.textContent = (c === " ") ? "\u00A0" : c;
         el.appendChild(s);
       });
-
       versesLayer.appendChild(el);
 
-      // Reveal chars sequentially (like handwriting)
-      const perChar = 90 + Math.random() * 60;
       const charEls = el.querySelectorAll(".char");
+      // Timing: each char appears at i*perChar and fades at i*perChar + visibleWindow
+      const perChar = 110 + Math.random() * 50;      // ~110–160ms
+      const visibleWindow = 1400 + Math.random() * 600; // ~1.4–2s
+      const exitFade = 360;
+
       charEls.forEach((c, i) => {
         setTimeout(() => c.classList.add("shown"), i * perChar);
+        setTimeout(() => c.classList.add("gone"),  i * perChar + visibleWindow);
       });
 
-      const writeDuration = charEls.length * perChar;
-      const hold = 2600 + Math.random() * 1800;
-
-      // Fade out
-      setTimeout(() => { el.classList.add("fading"); }, writeDuration + hold);
-      // Remove
-      setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, writeDuration + hold + 1600);
+      const lastExit = (charEls.length - 1) * perChar + visibleWindow + exitFade;
+      setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, lastExit + 200);
     }
 
     function scheduleNextVerse() {
-      const delay = reduced ? 8000 : (4200 + Math.random() * 3200);
+      // Keep the flow dense — new verse begins before previous finishes
+      const delay = reduced ? 6000 : (isMobile ? 3800 : 2800 + Math.random() * 2000);
       verseTimer = setTimeout(() => {
         spawnVerse();
         scheduleNextVerse();
@@ -584,31 +568,35 @@
     }
 
     // ---- Main animation loop ----
-    let t0 = performance.now();
     let rafId = null;
     let lastFrame = 0;
-    const TARGET_FPS = reduced ? 18 : 40;
+    let lastTick = performance.now();
+    const TARGET_FPS = reduced ? 20 : (isMobile ? 30 : 40);
     const FRAME_MS = 1000 / TARGET_FPS;
-    let lastFigureSpawn = 0;
-    const FIGURE_INTERVAL = reduced ? 9000 : 4500;
+    let lastSnakeSpawn = 0;
+    const SNAKE_SPAWN_INTERVAL = reduced ? 3000 : (isMobile ? 1500 : 850);
 
     function frame(now) {
       if (now - lastFrame >= FRAME_MS) {
+        const dt = Math.min(0.1, (now - lastTick) / 1000);
+        lastTick = now;
         lastFrame = now;
+
+        // Clear
         ctx.clearRect(0, 0, W, H);
 
-        // 1) Drifting threads
-        for (let i = 0; i < threads.length; i++) drawThread(threads[i], now);
-
-        // 2) Ornamental figures
-        // Spawn new one periodically up to MAX_FIGURES
-        if (now - lastFigureSpawn > FIGURE_INTERVAL && figures.length < MAX_FIGURES) {
-          spawnFigure(now);
-          lastFigureSpawn = now;
+        // Spawn new snake periodically
+        if (now - lastSnakeSpawn > SNAKE_SPAWN_INTERVAL && snakes.length < MAX_SNAKES) {
+          const s = makeSnake();
+          if (s) snakes.push(s);
+          lastSnakeSpawn = now;
         }
-        for (let i = figures.length - 1; i >= 0; i--) {
-          const alive = drawFigure(figures[i], now);
-          if (!alive) figures.splice(i, 1);
+
+        // Update & draw snakes
+        for (let i = snakes.length - 1; i >= 0; i--) {
+          const alive = updateSnake(snakes[i], dt);
+          if (!alive) { snakes.splice(i, 1); continue; }
+          drawSnake(snakes[i]);
         }
       }
       rafId = requestAnimationFrame(frame);
@@ -625,7 +613,7 @@
         rafId = null;
         if (verseTimer) { clearTimeout(verseTimer); verseTimer = null; }
       } else if (!rafId) {
-        t0 = performance.now();
+        lastTick = performance.now();
         lastFrame = 0;
         rafId = requestAnimationFrame(frame);
         scheduleNextVerse();
