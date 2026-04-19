@@ -1,5 +1,5 @@
-/* ATELIER NARKIS — luxury siddur micro-site
-   minimal interactivity: scroll effects, live hakdasha preview, reservation form */
+/* ATELIER NARKIS — single-page luxury siddur site
+   topbar scroll state, reveal-on-scroll, live hakdasha, active section nav, reserve form */
 
 (function () {
   "use strict";
@@ -13,20 +13,47 @@
   }
 
   // reveal-on-scroll
-  const observer = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) {
-        if (e.isIntersecting) {
-          e.target.classList.add("visible");
-          observer.unobserve(e.target);
+  const reveals = document.querySelectorAll(".reveal");
+  if (reveals.length) {
+    const revealObs = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            e.target.classList.add("visible");
+            revealObs.unobserve(e.target);
+          }
         }
-      }
-    },
-    { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
-  );
-  document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
+    );
+    reveals.forEach((el) => revealObs.observe(el));
+  }
 
-  // live hakdasha preview (on siddur.html)
+  // active section in top nav
+  const navLinks = document.querySelectorAll(".nav-main.right a[data-nav]");
+  const sectionMap = {};
+  navLinks.forEach((a) => {
+    const key = a.getAttribute("data-nav");
+    const target = document.getElementById(key);
+    if (target) sectionMap[key] = { link: a, el: target };
+  });
+  const keys = Object.keys(sectionMap);
+  if (keys.length) {
+    const navObs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            const id = e.target.id;
+            navLinks.forEach((a) => a.classList.toggle("active", a.getAttribute("data-nav") === id));
+          }
+        });
+      },
+      { rootMargin: "-40% 0px -55% 0px", threshold: 0 }
+    );
+    keys.forEach((k) => navObs.observe(sectionMap[k].el));
+  }
+
+  // live hakdasha preview
   const owner = document.getElementById("ownerInput");
   const ded = document.getElementById("dedInput");
   const ownerOut = document.getElementById("ownerOut");
@@ -50,7 +77,7 @@
   if (ded) ded.addEventListener("input", sync);
   sync();
 
-  // reservation form (story.html) — fake submit
+  // reservation form — fake submit
   const resForm = document.getElementById("reserveForm");
   if (resForm) {
     resForm.addEventListener("submit", (e) => {

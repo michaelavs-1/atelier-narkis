@@ -2,6 +2,12 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
   "trailingSlash": false,
+  "redirects": [
+    { "source": "/siddur", "destination": "/#siddur", "permanent": true },
+    { "source": "/siddur.html", "destination": "/#siddur", "permanent": true },
+    { "source": "/story", "destination": "/#story", "permanent": true },
+    { "source": "/story.html", "destination": "/#story", "permanent": true }
+  ],
   "headers": [
     {
       "source": "/media/(.*)",
