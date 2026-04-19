@@ -254,8 +254,8 @@
     function makeThread(i, count) {
       const orient = Math.random() < 0.55 ? "h" : "v";
       const color = GOLDS[Math.floor(Math.random() * GOLDS.length)];
-      const alphaBase = 0.12 + Math.random() * 0.22;
-      const widthPx = 0.4 + Math.random() * 0.9;
+      const alphaBase = 0.22 + Math.random() * 0.28;
+      const widthPx = 0.55 + Math.random() * 1.0;
       // Stagger phase so threads don't move in lockstep
       const phase = Math.random() * Math.PI * 2;
       // Travel speed in px/sec; slow — we want meditative drift.
@@ -275,7 +275,7 @@
       };
     }
 
-    const THREAD_COUNT = reduced ? 6 : 14;
+    const THREAD_COUNT = reduced ? 8 : 18;
     let threads = Array.from({ length: THREAD_COUNT }, (_, i) => makeThread(i, THREAD_COUNT));
 
     // Rebuild threads on resize so their spread stays nicely distributed
