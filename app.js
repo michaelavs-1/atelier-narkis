@@ -609,7 +609,12 @@
       }
       rafId = requestAnimationFrame(frame);
     }
-    rafId = requestAnimationFrame(frame);
+    // On mobile the canvas is display:none (to avoid iOS Safari compositing
+    // bugs). Skip the RAF loop entirely so we don't burn battery on
+    // something the user can't see.
+    if (!isMobile) {
+      rafId = requestAnimationFrame(frame);
+    }
 
     // First verse ~2.5s after boot, then cycle
     setTimeout(() => { spawnVerse(); scheduleNextVerse(); }, 2400);

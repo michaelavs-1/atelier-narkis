@@ -970,11 +970,13 @@
     .topbar { animation: topbarIn 1s cubic-bezier(.22,.7,.24,1) both; }
 
     /* ============ AMBIENT BACKGROUND LAYER ============ */
-    /* Fixed overlay hosting:
-       - #thread-bg    : canvas with snake-threads that trace shapes and dissolve
-       - #verses-layer : Hebrew pesukim that write and fade like a wave
-       IMPORTANT: mix-blend-mode is applied to the CHILDREN (canvas / .verse-ghost)
-       NOT the fixed wrapper — this avoids iOS Safari's fixed+blend black-screen bug. */
+    /* DESKTOP: fixed overlay above content, children use screen-blend.
+       MOBILE : ambient is moved BEHIND content (z-index:0) with NO blend
+                and NO position:fixed — because iOS Safari has two known
+                compositing bugs that produce a full-black screen:
+                (a) position:fixed + mix-blend-mode child
+                (b) transform:translateZ(0) on a fixed parent of a large canvas
+                Both are avoided on mobile by stacking ambient underneath. */
     #ambient-bg {
       position: fixed;
       inset: 0;
@@ -983,7 +985,6 @@
       pointer-events: none;
       z-index: 30;
       overflow: hidden;
-      /* Force a dedicated compositor layer (helps iOS Safari) */
       transform: translateZ(0);
       will-change: transform;
     }
@@ -1003,13 +1004,11 @@
       height: 100%;
       pointer-events: none;
     }
-    /* Individual ghost verse — gold, serif Hebrew */
     .verse-ghost {
       position: absolute;
       font-family: "Frank Ruhl Libre", serif;
       font-weight: 400;
       letter-spacing: .02em;
-      /* Preserve spaces between inline-block char spans */
       white-space: pre;
       direction: rtl;
       text-align: right;
@@ -1028,30 +1027,66 @@
     .verse-ghost .char.shown { opacity: 1; transform: translateY(0); }
     .verse-ghost .char.gone  { opacity: 0; transform: translateY(-3px); }
 
-    /* Site content stacking */
+    /* Desktop: ambient on top, content z=1 */
     body > *:not(#ambient-bg) { position: relative; z-index: 1; }
     .topbar { position: sticky; z-index: 50; }
 
-    /* Mobile: ensure no layout breakage, lighter ambient */
     html, body { overflow-x: hidden; }
     body { background: var(--ink); min-height: 100vh; }
-    @media (max-width: 640px) {
-      #thread-bg { opacity: .45; }
-      .verse-ghost { font-size: 13px !important; text-shadow: 0 0 6px rgba(201,169,106,.25); }
-    }
-    @media (max-width: 420px) {
-      #thread-bg { opacity: .3; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      #thread-bg { opacity: .4; }
-      .verse-ghost .char { transition: opacity .12s, transform .12s; }
+
+    /* ---------- MOBILE: bulletproof iOS rendering ---------- */
+    /* We hit the iOS Safari black-screen bug via:
+         position:fixed + mix-blend-mode + large canvas
+       Solution on mobile:
+         - hide the heavy canvas entirely (no compositing bug possible)
+         - keep only lightweight letter-chase verses, positioned absolute
+           inside a NON-fixed wrapper pinned to the hero height
+    */
+    @media (max-width: 768px), (pointer: coarse) {
+      #ambient-bg {
+        /* NOT fixed → no iOS compositing bug */
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 100vh;
+        z-index: 0;
+        transform: none;
+        will-change: auto;
+      }
+      #thread-bg {
+        /* Disable the canvas on mobile — guarantees no black screen */
+        display: none !important;
+      }
+      .verse-ghost {
+        mix-blend-mode: normal;   /* screen blend can fail on iOS */
+        font-size: 13px !important;
+        text-shadow: 0 0 6px rgba(201,169,106,.4);
+      }
+      body > *:not(#ambient-bg) { z-index: 2; }
+      body { background: var(--ink) !important; }
+
+      /* Subtle CSS-only gold ambient replacement for hero */
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(ellipse 60% 40% at 80% 20%, rgba(201,169,106,.12) 0%, transparent 60%),
+          radial-gradient(ellipse 50% 35% at 15% 85%, rgba(224,194,128,.09) 0%, transparent 60%);
+        z-index: 1;
+        animation: mobileGlow 12s ease-in-out infinite alternate;
+      }
+      @keyframes mobileGlow {
+        0%   { opacity: .6; transform: translateY(0); }
+        100% { opacity: 1;  transform: translateY(-6px); }
+      }
     }
 
     /* Honor reduced motion: still show threads, but dimmed */
     @media (prefers-reduced-motion: reduce) {
-      #thread-bg { opacity: .5; }
+      #thread-bg { opacity: .4; }
       .verse-ghost { transition: none; }
-      .verse-ghost .char { transition: opacity .1s, transform .1s; }
+      .verse-ghost .char { transition: opacity .12s, transform .12s; }
     }
   </style>
 </head>
